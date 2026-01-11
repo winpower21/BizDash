@@ -1,0 +1,11 @@
+.content {
+    padding: 40px;
+    gap: 5px;
+    height: 100vh;
+    width: 100vw;
+}
+
+.column {
+    margin: 15px 0px 15px 0px;
+}
+

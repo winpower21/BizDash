@@ -1,0 +1,48 @@
+{% extends 'base.html' %} 
+{% block title %} Add Order {% endblock %} 
+{% block content %}
+<form action="/new-order" method="pos
+    <label for="client">Select Client:</label>
+    <select class="form-select" aria-label="Select Client" name="client" id="client">
+        {% for client in clients %}
+        <option value="{{client.id}}">{{client.name}}</option>
+        {% endfor %}
+    </select>
+
+    <label for="partner">Select Partner:</label>
+    <select class="form-select" aria-label="Select Partner" name="partner" id="partner">
+        {% for partner in partners %}
+        <option value="{{partner.id}}">{{partner.name}}</option>
+        {% endfor %}
+    </select>
+    
+    <label for="order_type">Select Order Type:</label>
+    <select class="form-select" aria-label="Select Order Type" name="order_type" id="order_type">
+        <option value="1">Transfer</option>
+        <option value="2">Transfer 2</option>
+    </select>   
+
+    <label for="companyList" class="form-label">Select Company</label>
+    <input class="form-control" list="companyListOptions" id="companyListOptions" placeholder="Type to search..." name="company">
+    <datalist id="companyListOptions">
+        {% for company in companies %}
+        <option data-value="{{ company.id }}" value="{{ company.name }}"></option>
+        {% endfor %}
+    </datalist>
+
+    
+
+    <div class="mb-3">
+		<label for="quantity" class="form-label">Quantity</label>
+		<input type="number" class="form-control" id="quantity" name="quantity"  placeholder="In Digits"/>
+	</div>
+
+    
+
+	<div class="mb-3">
+		<label for="addreess" class="form-label">Address</label>
+		<textarea class="form-control" id="addreess" rows="3" name="address"></textarea>
+	</div>
+	<button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

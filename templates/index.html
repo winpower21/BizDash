@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %} 
+    Home 
+{% endblock %}
+
+{% block content %}
+<h1>Home Page</h1>
+<div class="container text-center">
+    <div class="row">
+        <div class="col-4 column">
+            <h3>Partners</h3>
+            <a class="btn btn-info" href="/view-partners">View Partners</a>
+            <a class="btn btn-info" href="/new-partner">Add Partner</a>            
+        </div>
+        <div class="col-4 column">
+            <h3>Clients</h3>
+            <a class="btn btn-info" href="/view-clients">View clients</a>
+            <a class="btn btn-info" href="/new-client">Add clients</a>    
+        </div>
+        <div class="col-4 column">
+            <h3>Orders</h3>
+            <a class="btn btn-info" href="/view-orders">View Orders</a>
+            <a class="btn btn-info" href="/new-order">New Order</a>    
+        </div>
+        <div class="col-4 column">
+            <h3>Timeline</h3>
+            <a class="btn btn-info" href="/view-timelines">View Timelines</a>
+            <a class="btn btn-info" href="/new-timeline">New Timeline</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
