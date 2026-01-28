@@ -1,0 +1,247 @@
+<body>
+	<!-- Sidebar -->
+	<div class="sidebar collapsed" id="sidebar">
+		<!-- Toggle Button -->
+		<button class="toggle-sidebar" onclick="toggleSidebar()">
+			<i class="bi bi-list"></i>
+			<span class="collapse-btn-text">Dash</span>
+		</button>
+
+		<!-- Navigation -->
+		<nav class="mt-3">
+			<!-- Dashboard -->
+			<div class="menu-header">
+				<span class="menu-text">Main</span>
+			</div>
+			<a href="/" class="sidebar-link">
+				<i class="bi bi-house-door"></i>
+				<span class="menu-text">Dashboard</span>
+			</a>
+
+			<!-- Partners Menu -->
+			<a
+				href="#partenrsMenu"
+				class="sidebar-link"
+				data-bs-toggle="collapse"
+				role="button"
+				aria-expanded="false"
+				onclick="expandSidebar()"
+			>
+				<i class="bi bi-person-vcard"></i>
+				<span class="menu-text">Partners</span>
+				<i class="bi bi-chevron-down collapse-icon menu-text"></i>
+			</a>
+			<div class="collapse submenu" id="partenrsMenu">
+				<a href="/partners" class="sidebar-link">
+					<i class="bi bi-people-fill"></i>
+					<span class="menu-text">All Partners</span>
+				</a>
+				<a href="/new-partner" class="sidebar-link">
+					<i class="bi bi-person-fill-add"></i>
+					<span class="menu-text">New Partner</span>
+				</a>
+				<!-- <a href="#" class="sidebar-link">
+							<i class="bi bi-circle"></i>
+							<span class="menu-text">Archived</span>
+						</a> -->
+			</div>
+
+			<!-- Client Menu -->
+			<a
+				href="#clientMenu"
+				class="sidebar-link"
+				data-bs-toggle="collapse"
+				role="button"
+				aria-expanded="false"
+				onclick="expandSidebar()"
+			>
+				<i class="bi bi-people"></i>
+				<span class="menu-text">Clients</span>
+				<i class="bi bi-chevron-down collapse-icon menu-text"></i>
+			</a>
+			<div class="collapse submenu" id="clientMenu">
+				<a href="/clients" class="sidebar-link">
+					<i class="bi bi-people"></i>
+					<span class="menu-text">Existing Clients</span>
+				</a>
+				<a href="/new-client" class="sidebar-link">
+					<i class="bi bi-person-add"></i>
+					<span class="menu-text">New Client</span>
+				</a>
+				<!-- <a href="#" class="sidebar-link">
+							<i class="bi bi-circle"></i>
+							<span class="menu-text">Permissions</span>
+						</a> -->
+			</div>
+
+			<!-- Oders Menu -->
+			<a
+				href="#ordersMenu"
+				class="sidebar-link"
+				data-bs-toggle="collapse"
+				role="button"
+				aria-expanded="false"
+				onclick="expandSidebar()"
+			>
+				<i class="bi bi-cart-fill"></i>
+				<span class="menu-text">Orders</span>
+				<i class="bi bi-chevron-down collapse-icon menu-text"></i>
+			</a>
+			<div class="collapse submenu" id="ordersMenu">
+				<a href="/orders" class="sidebar-link">
+					<i class="bi bi-cart-check-fill"></i>
+					<span class="menu-text">Active Orders</span>
+				</a>
+				<a href="/new-order" class="sidebar-link">
+					<i class="bi bi-cart-plus-fill"></i>
+					<span class="menu-text">New Order</span>
+				</a>
+				<!-- <a href="#" class="sidebar-link">
+							<i class="bi bi-circle"></i>
+							<span class="menu-text">Permissions</span>
+						</a> -->
+			</div>
+
+			<!-- Reports Menu -->
+			<div class="menu-header mt-3">
+				<span class="menu-text">Analytics</span>
+			</div>
+			<a
+				href="#reportsMenu"
+				class="sidebar-link"
+				data-bs-toggle="collapse"
+				role="button"
+				aria-expanded="false"
+				onclick="expandSidebar()"
+			>
+				<i class="bi bi-graph-up"></i>
+				<span class="menu-text">Reports</span>
+				<i class="bi bi-chevron-down collapse-icon menu-text"></i>
+			</a>
+			<div class="collapse submenu" id="reportsMenu">
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Overview</span>
+				</a>
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Sales</span>
+				</a>
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Traffic</span>
+				</a>
+			</div>
+
+			<!-- Settings -->
+			<div class="menu-header mt-3">
+				<span class="menu-text">Other</span>
+			</div>
+			<a
+				href="#settingsMenu"
+				class="sidebar-link"
+				data-bs-toggle="collapse"
+				role="button"
+				aria-expanded="false"
+				onclick="expandSidebar()"
+			>
+				<i class="bi bi-gear"></i>
+				<span class="menu-text">Settings</span>
+				<i class="bi bi-chevron-down collapse-icon menu-text"></i>
+			</a>
+			<div class="collapse submenu" id="settingsMenu">
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Profile</span>
+				</a>
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Account</span>
+				</a>
+				<a href="#" class="sidebar-link">
+					<i class="bi bi-circle"></i>
+					<span class="menu-text">Security</span>
+				</a>
+			</div>
+		</nav>
+	</div>
+
+	<!-- Main Content -->
+	<!-- <div class="content">
+			    {% with messages = get_flashed_messages(with_categories=true) %} 
+			        {% if messages %} 
+			            {% for category, message in messages %}
+			                <div class="alert alert-{{ 'danger' if category == 'error' else category }} d-flex align-items-center fade show" role="alert">
+			                    <span class="flex-grow-1"> {{ message }} </span>
+			                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+			                </div>
+			            {% endfor %} 
+			        {% endif %} 
+			    {% endwith %}
+			
+			    <title>Dash: {% block title %}{% endblock %}</title>
+			    {% block content %} 
+			    {% endblock %}
+			</div> -->
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+<script>
+	function toggleSidebar() {
+		const sidebar = document.getElementById("sidebar");
+		sidebar.classList.toggle("collapsed");
+		// Close all open submenus when collapsing sidebar
+		if (sidebar.classList.contains("collapsed")) {
+			const openMenus = document.querySelectorAll(".submenu.show");
+			openMenus.forEach((menu) => {
+				const bsCollapse = bootstrap.Collapse.getInstance(menu);
+				if (bsCollapse) {
+					bsCollapse.hide();
+				}
+			});
+		}
+	}
+	function expandSidebar() {
+		const sidebar = document.getElementById("sidebar");
+		// Only expand if sidebar is currently collapsed
+		if (sidebar.classList.contains("collapsed")) {
+			sidebar.classList.remove("collapsed");
+		}
+	}
+
+	// Ensure Bootstrap collapse is properly initialized
+	document.addEventListener("DOMContentLoaded", function () {
+		// Get all collapse toggle links
+		const collapseToggles = document.querySelectorAll(
+			'[data-bs-toggle="collapse"]',
+		);
+
+		collapseToggles.forEach((toggle) => {
+			toggle.addEventListener("click", function (e) {
+				e.preventDefault();
+
+				const targetId = this.getAttribute("href");
+				const targetElement = document.querySelector(targetId);
+
+				if (targetElement) {
+					const bsCollapse =
+						bootstrap.Collapse.getOrCreateInstance(targetElement);
+					bsCollapse.toggle();
+				}
+			});
+		});
+	});
+	document.addEventListener("DOMContentLoaded", () => {
+		// Find all alerts
+		const alerts = document.querySelectorAll(".alert");
+		alerts.forEach((alertElement) => {
+			// Create a Bootstrap Alert instance for each alert
+			const bsAlert = new bootstrap.Alert(alertElement);
+			// Delay for 3 seconds before starting the fade-out
+			setTimeout(() => {
+				bsAlert.close();
+			}, 4000);
+		});
+	});
+</script>

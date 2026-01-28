@@ -1,0 +1,62 @@
+{% extends 'base.html' %} 
+{% block title %} View Partners {% endblock %} 
+
+{% block style %}
+<link
+	rel="stylesheet"
+	href="{{ url_for('static', filename='table.css') }}"
+/>
+{% endblock %} 
+
+{% block content %}
+
+<div class="parent">
+    {% if partners | length > 0 %}
+    <h1>Partners</h1>
+    <hr>
+    <div class="container">
+        <div class="list-table">
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for partner in partners %}
+                    <tr data-partner-id="{{ partner.id }}">
+                        <form class="partner-form" method="PUT" action="/partner-info/{{ partner.id }}" style="display: contents;">
+                            <td>
+                                <input type="text" class="partner-name inp" name="name" value="{{ partner.name }}" aria-label="name" />
+                            </td>
+                            <td>
+                                <input type="email" class="partner-email inp" name="email" value="{{ partner.email }}" aria-label="email" />
+                            </td>
+                            <td>
+                                <input type="tel" class="partner-phone inp" name="phone" value="{{ partner.phone }}" aria-label="phone" />
+                            </td>
+                            <td class="action-cell">
+                                <button type="submit" class="submit-btn">Submit</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/new-partner" class="btn btn-primary">Add New Partner</a>
+        </div>
+    </div>
+    {% else %}
+        <div class="container text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 80vh;">
+        <h1>No partners exist</h1>
+        <a href="/new-partner" class="btn btn-primary">Add New Partner</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

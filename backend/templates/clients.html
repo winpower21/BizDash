@@ -1,0 +1,94 @@
+{% extends 'base.html' %} 
+{% block title %} View clients {% endblock %} 
+{% block style %}
+<link
+	rel="stylesheet"
+	href="{{ url_for('static', filename='table.css') }}"
+/>
+{% endblock %} 
+{% block content %}
+
+<div>
+    {% if clients | length > 0 %}
+	<h1>All Clients</h1>
+    <div class="container">
+        <div class="list-table">
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+						<th>Address</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients %}
+                    <tr data-client-id="{{ client.id }}">
+                        <form class="client-form" method="PUT" action="/client-info/{{ client.id }}" style="display: contents;">
+                            <td>
+                                <input type="text" class="client-name inp" name="name" value="{{ client.name }}" aria-label="name" />
+                            </td>
+                            <td>
+                                <input type="email" class="client-email inp" name="email" value="{{ client.email }}" aria-label="email" />
+                            </td>
+                            <td>
+                                <input type="tel" class="client-phone inp" name="phone" value="{{ client.phone }}" aria-label="phone" />
+                            </td>
+							<td>
+								<textarea class="client-address inp" id="address" rows="2" name="address" value="{{ client.address }}">{{ client.address }}</textarea>
+							</td>
+                            <td class="action-cell">
+                                <button type="submit" class="submit-btn">Submit</button>
+                            </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-end mt-4">
+            <a href="/new-client" class="btn btn-primary">Add New Client</a>
+        </div>
+    </div>
+    {% else %}
+        <div class="container text-center d-flex flex-column justify-content-center align-items-center" style="min-height: 80vh;">
+        <h1>No clients exist</h1>
+        <a href="/new-client" class="btn btn-primary">Add New Client</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+	document.querySelectorAll('.client-form').forEach(form => {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const action = form.getAttribute('action');
+			const formData = new FormData(form);
+			
+			const data = {
+				name: formData.get('name'),
+				email: formData.get('email'),
+				phone: formData.get('phone'),
+				address: formData.get('address')
+			};
+			
+			try {
+				await fetch(action, {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(data)
+				});
+				// Let backend handle redirect
+				window.location.href = '/clients';
+			} catch (error) {
+				console.error('Error:', error);
+			}
+		});
+	});
+</script>
+
+{% endblock %}
