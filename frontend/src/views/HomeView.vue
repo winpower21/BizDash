@@ -5,23 +5,24 @@
             <div class="col-4 column">
                 <h3>Partners</h3>
                 <router-link class="btn btn-info" to="/partners">View Partners</router-link>
-                <a class="btn btn-info" href="/new-partner">Add Partner</a>
+                <router-link class="btn btn-info" to="/new-partner">New Partners</router-link>
             </div>
             <div class="col-4 column">
                 <h3>Clients</h3>
-                <a class="btn btn-info" href="/clients">View clients</a>
-                <a class="btn btn-info" href="/new-client">Add clients</a>
+                <router-link class="btn btn-info" to="/clients">View Clients</router-link>
+                <router-link class="btn btn-info" to="/new-client">New Clients</router-link>
             </div>
             <div class="col-4 column">
                 <h3>Orders</h3>
-                <a class="btn btn-info" href="/view-orders">View Orders</a>
-                <a class="btn btn-info" href="/new-order">New Order</a>
+                <router-link class="btn btn-info" to="/orders">View Orders</router-link>
+                <router-link class="btn btn-info" to="/new-order">New Order</router-link>
             </div>
             <div class="col-4 column">
                 <h3>Timeline</h3>
                 <a class="btn btn-info" href="/view-timelines">View Timelines</a>
                 <a class="btn btn-info" href="/new-timeline">New Timeline</a>
             </div>
+            <a class="btn btn-info" href="/document-types">View Timelines</a>
         </div>
         <button @click="showAlert" class="btn btn-primary mt-3">Show Alert</button>
     </div>

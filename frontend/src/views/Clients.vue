@@ -1,57 +1,56 @@
 <template>
     <div class="parent">
-        <h1>Partners</h1>
+        <h1>Clients</h1>
         <hr>
-        <div class="container" v-if="partners.length > 0">
+        <div class="container" v-if="clients.length > 0">
             <div class="list-table">
-                <table role="grid" :class="{ 'has-focus': focusedPartnerId !== null }" ref="partnerTable">
+                <table role="grid" :class="{ 'has-focus': focusedClientId !== null }" ref="clientTable">
                     <thead>
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
-                            <th>Revenue Share</th>
+                            <th>Address</th>
+                            <th>Orders</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="partner in partners" :key="partner.id" :data-partner-id="partner.id"
-                            :class="{ 'focused-row': focusedPartnerId === partner.id }">
+                        <tr v-for="client in clients" :key="client.id" :data-client-id="client.id"
+                            :class="{ 'focused-row': focusedClientId === client.id }">
                             <td>
-                                <input type="text" class="partner-name inp" name="name" v-model="partner.name"
-                                    @focus="focusedPartnerId = partner.id" aria-label="name" />
+                                <input type="text" class="client-name inp" name="name" v-model="client.name"
+                                    @focus="focusedClientId = client.id" aria-label="name" />
                             </td>
                             <td>
-                                <input type="email" class="partner-email inp" name="email" v-model="partner.email"
-                                    @focus="focusedPartnerId = partner.id" aria-label="email" />
+                                <input type="email" class="client-email inp" name="email" v-model="client.email"
+                                    @focus="focusedClientId = client.id" aria-label="email" />
                             </td>
-                            <td :class="{ 'has-validation-error': validationErrors.has(partner.id) }">
+                            <td :class="{ 'has-validation-error': validationErrors.has(client.id) }">
                                 <div class="input-wrapper">
-                                    <input type="tel" class="partner-phone inp" name="phone" v-model="partner.phone"
-                                        @focus="focusedPartnerId = partner.id" aria-label="phone"
-                                        :class="{ 'is-invalid': validationErrors.has(partner.id) }" />
-                                    <div v-if="validationErrors.has(partner.id)" class="invalid-feedback">
-                                        {{ validationErrors.get(partner.id) }}
+                                    <input type="tel" class="client-phone inp" name="phone" v-model="client.phone"
+                                        @focus="focusedClientId = client.id" aria-label="phone"
+                                        :class="{ 'is-invalid': validationErrors.has(client.id) }" />
+                                    <div v-if="validationErrors.has(client.id)" class="invalid-feedback">
+                                        {{ validationErrors.get(client.id) }}
                                     </div>
                                 </div>
                             </td>
                             <td>
-                                <div>
-                                    <label class="form-label">
-                                        Partner Share: {{ Math.round(partner.revenue_share * 100) }}%
-                                    </label>
-                                    <input type="range" class="form-range" min="0.05" max="0.95" step="0.05"
-                                        v-model="partner.revenue_share" @focus="focusedPartnerId = partner.id" style="padding-top: 0px; 
-                                    padding-bottom: 20px; margin-bottom: 20px;" />
-                                </div>
+                                <textarea name="address" class="client-address" v-model="client.address" @focus="focusedClientId = client.id" aria-label="address"></textarea>
+                            </td>
+                            <td>
+                                <p class="text-center">{{ client.orders.length }}</p>
                             </td>
                             <td class="action-cell">
                                 <div class="d-flex justify-content-around">
-                                    <button type="button" @click="updatePartner(partner)" class="submit-btn btn p-2 mx-2"
-                                        :disabled="!dirtyPartnerIds.has(partner.id) || validationErrors.has(partner.id)">
+                                    <button type="button" @click="updateClient(client)"
+                                        class="submit-btn btn p-2 mx-2"
+                                        :disabled="!dirtyClientIds.has(client.id) || validationErrors.has(client.id)">
                                         Submit
                                     </button>
-                                    <button type="button" @click="deletePartner(partner)" class="submit-btn btn p-2 mx-2">
+                                    <button type="button" @click="deleteClient(client)"
+                                        class="submit-btn btn p-2 mx-2">
                                         Delete
                                     </button>
                                 </div>
@@ -61,13 +60,13 @@
                 </table>
             </div>
             <div class="text-center mt-4">
-                <a href="/new-partner" class="btn btn-primary new-client-button">Add New Partner</a>
+                <a href="/new-client" class="btn btn-primary new-client-button">Add New Client</a>
             </div>
         </div>
         <div v-else class="container text-center d-flex flex-column justify-content-center  align-items-center"
             style="min-height: 80vh;">
-            <h1>No partners exist</h1>
-            <a href="/new-partner" class="btn btn-primary">Add New Partner</a>
+            <h1>No clients exist</h1>
+            <a href="/new-client" class="btn btn-primary">Add New Client</a>
         </div>
     </div>
 </template>
@@ -81,37 +80,37 @@ import { validatePhone } from '../../utils/validators';
 
 // --- Reactive State ---
 
-// Holds the list of partners displayed in the table.
-const partners = ref([]);
-// Tracks the ID of the partner whose row is currently in focus.
-const focusedPartnerId = ref(null);
-// A Map to store a deep copy of the original partner data to compare against for changes.
-const originalPartners = ref(new Map());
-// A Set to store the IDs of partners that have been modified but not saved.
-const dirtyPartnerIds = ref(new Set());
+// Holds the list of clients displayed in the table.
+const clients = ref([]);
+// Tracks the ID of the client whose row is currently in focus.
+const focusedClientId = ref(null);
+// A Map to store a deep copy of the original client data to compare against for changes.
+const originalClients = ref(new Map());
+// A Set to store the IDs of clients that have been modified but not saved.
+const dirtyClientIds = ref(new Set());
 // A template ref to get direct access to the table DOM element.
-const partnerTable = ref(null);
+const clientTable = ref(null);
 // Instance of the Pinia store for showing global alert messages.
 const alertStore = useAlertStore();
-// A Map to store validation error messages for each partner row, keyed by partner ID.
+// A Map to store validation error messages for each client row, keyed by client ID.
 const validationErrors = ref(new Map());
 
 
 // --- Functions ---
 
 /**
- * Reverts any changes made to a partner's data back to its original state.
- * @param {number} partnerId - The ID of the partner to revert.
+ * Reverts any changes made to a client's data back to its original state.
+ * @param {number} clientId - The ID of the client to revert.
  */
-const revertChanges = (partnerId) => {
-    // Only proceed if the partner is marked as "dirty" (modified).
-    if (dirtyPartnerIds.value.has(partnerId)) {
-        const partnerIndex = partners.value.findIndex(p => p.id === partnerId);
-        if (partnerIndex !== -1) {
-            const originalPartner = originalPartners.value.get(partnerId);
-            if (originalPartner) {
-                // Restore the partner's data by replacing it with the stored original copy.
-                partners.value[partnerIndex] = JSON.parse(JSON.stringify(originalPartner));
+const revertChanges = (clientId) => {
+    // Only proceed if the client is marked as "dirty" (modified).
+    if (dirtyClientIds.value.has(clientId)) {
+        const clientIndex = clients.value.findIndex(p => p.id === clientId);
+        if (clientIndex !== -1) {
+            const originalClient = originalClients.value.get(clientId);
+            if (originalClient) {
+                // Restore the client's data by replacing it with the stored original copy.
+                clients.value[clientIndex] = JSON.parse(JSON.stringify(originalClient));
             }
         }
     }
@@ -124,151 +123,151 @@ const revertChanges = (partnerId) => {
  */
 const handleClickOutside = (event) => {
     // Check if the click happened outside the table and a row is currently focused.
-    if (partnerTable.value && !partnerTable.value.contains(event.target)) {
-        if (focusedPartnerId.value !== null) {
-            revertChanges(focusedPartnerId.value);
+    if (clientTable.value && !clientTable.value.contains(event.target)) {
+        if (focusedClientId.value !== null) {
+            revertChanges(focusedClientId.value);
             // Reset the focus state.
-            focusedPartnerId.value = null;
+            focusedClientId.value = null;
         }
     }
 }
 
 /**
- * Fetches the complete list of partners from the API.
- * Initializes the component's state, including the `partners` list for display
- * and a `originalPartners` deep copy for tracking changes.
+ * Fetches the complete list of clients from the API.
+ * Initializes the component's state, including the `clients` list for display
+ * and a `originalClients` deep copy for tracking changes.
  */
-const allPartners = async () => {
+const allClients = async () => {
     try {
-        const response = await fetchApi('/api/partners', { method: "GET" })
+        const response = await fetchApi('/api/clients', { method: "GET" })
         if (response.ok) {
             const data = await response.json();
 
-            let partnerData = Array.isArray(data) ? data : (data.partners || data.data || data.results || []);
-            partners.value = partnerData;
+            let clientData = Array.isArray(data) ? data : (data.clients || data.data || data.results || []);
+            clients.value = clientData;
 
-            const newOriginalPartners = new Map();
-            partnerData.forEach(p => {
-                newOriginalPartners.set(p.id, JSON.parse(JSON.stringify(p)));
+            const newOriginalClients = new Map();
+            clientData.forEach(p => {
+                newOriginalClients.set(p.id, JSON.parse(JSON.stringify(p)));
             });
-            originalPartners.value = newOriginalPartners;
+            originalClients.value = newOriginalClients;
 
-            dirtyPartnerIds.value.clear();
+            dirtyClientIds.value.clear();
             validationErrors.value.clear();
         } else {
-            if (response.status !== 404){
-                alertStore.show('Failed to load partners.', 'error'); 
+            if (response.status !== 404) {
+                alertStore.show('Failed to load clients.', 'error');
                 console.error(response.status);
             }
             else {
-                console.warn(response.message) 
+                console.warn(response.message)
             }
         }
     } catch (error) {
         console.error(error);
-        alertStore.show('An error occurred while fetching partners.', 'error');
+        alertStore.show('An error occurred while fetching clients.', 'error');
     }
 }
 
 /**
- * Prompts the user for confirmation and deletes a partner both from the backend and the local state.
- * @param {object} partner - The partner object to be deleted.
+ * Prompts the user for confirmation and deletes a client both from the backend and the local state.
+ * @param {object} client - The client object to be deleted.
  */
-const deletePartner = async (partner) => {
+const deleteClient = async (client) => {
     // Use a confirmation dialog as a safeguard for destructive actions.
-    if (!window.confirm(`Are you sure you want to delete ${partner.name}?`)) {
+    if (!window.confirm(`Are you sure you want to delete ${client.name}?`)) {
         return;
     }
 
     try {
-        const response = await fetchApi(`/api/partners/${partner.id}`, {
+        const response = await fetchApi(`/api/clients/${client.id}`, {
             method: "DELETE",
         })
         if (response.ok) {
             const data = await response.json();
-            alertStore.show(data.message || 'Partner deleted successfully!', 'success');
+            alertStore.show(data.message || 'Client deleted successfully!', 'success');
 
-            // Remove the partner from the local reactive array to update the UI instantly.
-            const index = partners.value.findIndex(p => p.id === partner.id);
+            // Remove the client from the local reactive array to update the UI instantly.
+            const index = clients.value.findIndex(p => p.id === client.id);
             if (index > -1) {
-                partners.value.splice(index, 1);
+                clients.value.splice(index, 1);
             }
 
             // Clean up all related state.
-            originalPartners.value.delete(partner.id);
-            dirtyPartnerIds.value.delete(partner.id);
-            validationErrors.value.delete(partner.id);
+            originalClients.value.delete(client.id);
+            dirtyClientIds.value.delete(client.id);
+            validationErrors.value.delete(client.id);
 
         } else {
             const errorData = await response.json();
-            alertStore.show(errorData.message || 'Failed to delete partner.', 'error');
-            console.error('Failed to delete partner:', response.statusText);
+            alertStore.show(errorData.message || 'Failed to delete client.', 'error');
+            console.error('Failed to delete client:', response.statusText);
         }
     } catch (error) {
         alertStore.show('An error occurred while deleting.', 'error');
-        console.error('Error deleting partner:', error);
+        console.error('Error deleting client:', error);
     }
 }
 
 
 /**
- * Submits updated partner data to the backend.
+ * Submits updated client data to the backend.
  * Contains guards to prevent submission if data is unchanged or invalid.
  * On success, it updates the local state with the response from the server.
- * @param {object} partner - The partner object with updated data.
+ * @param {object} client - The client object with updated data.
  */
-const updatePartner = async (partner) => {
+const updateClient = async (client) => {
     // Guard against submitting if the data hasn't changed.
-    if (!dirtyPartnerIds.value.has(partner.id)) {
-        console.log("No changes to update for partner:", partner.id);
+    if (!dirtyClientIds.value.has(client.id)) {
+        console.log("No changes to update for client:", client.id);
         return;
     }
     // Guard against submitting if there are validation errors.
-    if (validationErrors.value.has(partner.id)) {
+    if (validationErrors.value.has(client.id)) {
         alertStore.show('Please fix validation errors before submitting.', 'error');
         return;
     }
 
     try {
-        const response = await fetchApi(`/api/partners/${partner.id}`, {
+        const response = await fetchApi(`/api/clients/${client.id}`, {
             method: "PUT",
             body: JSON.stringify({
-                name: partner.name,
-                email: partner.email,
-                phone: partner.phone,
-                revenue_share: partner.revenue_share
+                name: client.name,
+                email: client.email,
+                phone: client.phone,
+                address: client.address
             })
         });
 
         if (response.ok) {
-            const updatedPartner = await response.json();
+            const updatedClient = await response.json();
 
             // --- IMPORTANT: Order of Operations ---
             // 1. Explicitly mark the row as not dirty. This is the most robust way
             // to prevent the watcher from incorrectly re-marking it as dirty.
-            dirtyPartnerIds.value.delete(partner.id);
+            dirtyClientIds.value.delete(client.id);
 
             // 2. Update the "original" state to match the newly saved data.
-            originalPartners.value.set(updatedPartner.id, JSON.parse(JSON.stringify(updatedPartner)));
+            originalClients.value.set(updatedClient.id, JSON.parse(JSON.stringify(updatedClient)));
 
-            // 3. Find and update the specific partner in the local reactive array.
+            // 3. Find and update the specific client in the local reactive array.
             // This will trigger the deep watcher, which will now find nothing to do.
-            const index = partners.value.findIndex(p => p.id === updatedPartner.id);
+            const index = clients.value.findIndex(p => p.id === updatedClient.id);
             if (index !== -1) {
-                partners.value[index] = updatedPartner;
+                clients.value[index] = updatedClient;
             }
 
             // 4. Show success message.
-            alertStore.show('Partner updated successfully!', 'success');
+            alertStore.show('Client updated successfully!', 'success');
 
         } else {
             const errorData = await response.json();
-            alertStore.show(errorData.message || 'Failed to update partner.', 'error');
-            console.error('Failed to update partner:', response.statusText);
+            alertStore.show(errorData.message || 'Failed to update client.', 'error');
+            console.error('Failed to update client:', response.statusText);
         }
     } catch (error) {
         alertStore.show('An error occurred while updating.', 'error');
-        console.error('Error updating partner:', error);
+        console.error('Error updating client:', error);
     }
 }
 
@@ -276,28 +275,28 @@ const updatePartner = async (partner) => {
 // --- Watchers & Lifecycle Hooks ---
 
 /**
- * Deep watcher on the `partners` array. This is the core of the component's reactivity.
- * It compares the current state of each partner with its original state to:
+ * Deep watcher on the `clients` array. This is the core of the component's reactivity.
+ * It compares the current state of each client with its original state to:
  * 1. Determine if a row is "dirty" (modified).
  * 2. Validate the phone number field as it changes.
  */
-watch(partners, (newPartners) => {
-    newPartners.forEach(partner => {
-        const originalPartner = originalPartners.value.get(partner.id);
-        if (originalPartner) {
+watch(clients, (newClients) => {
+    newClients.forEach(client => {
+        const originalClient = originalClients.value.get(client.id);
+        if (originalClient) {
             // 1. Check for dirtiness by comparing the stringified versions of the objects.
-            if (JSON.stringify(partner) !== JSON.stringify(originalPartner)) {
-                dirtyPartnerIds.value.add(partner.id);
+            if (JSON.stringify(client) !== JSON.stringify(originalClient)) {
+                dirtyClientIds.value.add(client.id);
             } else {
-                dirtyPartnerIds.value.delete(partner.id);
+                dirtyClientIds.value.delete(client.id);
             }
 
             // 2. Perform validation on the phone number and update the errors map.
-            const phoneError = validatePhone(partner.phone);
+            const phoneError = validatePhone(client.phone);
             if (phoneError) {
-                validationErrors.value.set(partner.id, phoneError);
+                validationErrors.value.set(client.id, phoneError);
             } else {
-                validationErrors.value.delete(partner.id);
+                validationErrors.value.delete(client.id);
             }
         }
     });
@@ -305,7 +304,7 @@ watch(partners, (newPartners) => {
 
 // Set up and tear down the global click listener for handling clicks outside the table.
 onMounted(() => {
-    allPartners();
+    allClients();
     document.addEventListener('click', handleClickOutside, true);
 })
 
@@ -357,11 +356,12 @@ thead {
     background: var(--head);
     position: sticky;
     top: 0;
+    text-align: center;
 }
 
 th {
     padding: 1rem;
-    text-align: left;
+    text-align: center;
     font-weight: 600;
     font-size: 0.875rem;
     text-transform: uppercase;
@@ -372,15 +372,19 @@ th {
 
 td {
     padding: 0;
-    min-height: 48px; /* Use min-height for flexibility */
+    min-height: 48px;
+    /* Use min-height for flexibility */
     border-bottom: 1px solid var(--border);
-    transition: min-height 0.3s ease, padding-bottom 0.3s ease; /* Smooth transition */
+    transition: min-height 0.3s ease, padding-bottom 0.3s ease;
+    /* Smooth transition */
 }
 
 /* Add extra space to the td when there's a validation error */
 td.has-validation-error {
-    padding-bottom: 25px; /* Enough space for the error message */
-    min-height: 73px; /* 48px (base) + 25px (padding) */
+    padding-bottom: 25px;
+    /* Enough space for the error message */
+    min-height: 73px;
+    /* 48px (base) + 25px (padding) */
 }
 
 input {
@@ -516,6 +520,14 @@ tr.focused-row input {
     left: 1rem;
     background: white;
     padding: 0 5px;
-    z-index: 10; /* Ensure it's on top */
+    z-index: 10;
+    /* Ensure it's on top */
+}
+
+.client-phone {
+    max-width: 120px;
+}
+.inp {
+    text-align: center;
 }
 </style>

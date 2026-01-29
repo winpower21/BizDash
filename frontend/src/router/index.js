@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import Partners from '@/views/Partners.vue'
 import NewPartner from '@/views/NewPartner.vue'
+import Clients from '@/views/Clients.vue'
+import NewClient from '@/views/NewClient.vue'
+import ManageResources from '@/views/ManageResources.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +27,7 @@ const router = createRouter({
         {
             path: '/clients',
             name: 'clients',
+            component: Clients,
         },
         {
             path: '/clients/:clientId',
@@ -32,6 +36,22 @@ const router = createRouter({
         {
             path: '/new-client',
             name: 'new-client',
+            component: NewClient
+        },
+        {
+            path: '/manage-resources',
+            name: 'manageResources',
+            component: ManageResources
+        },
+        {
+            path: '/document-types',
+            name: 'documentTypes',
+            component: ManageResources
+        },
+        {
+            path: '/order-types',
+            name: 'orderTypes',
+            component: ManageResources
         },
         {
             path: '/companies',
@@ -40,18 +60,6 @@ const router = createRouter({
         {
             path: '/registrars',
             name: 'registrars',
-        },
-        {
-            path: '/document-types',
-            name: 'document-types',
-        },
-        {
-            path: '/document-types',
-            name: 'document-types',
-        },
-        {
-            path: '/order-types',
-            name: 'order-types',
         },
         {
             path: '/orders',

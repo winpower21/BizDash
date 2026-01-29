@@ -144,6 +144,39 @@
                     </div>
                 </li>
             </ul>
+            <!-- Reports Menu -->
+            <div class="menu-header mt-3">
+                <span class="menu-text">Settings</span>
+            </div>
+
+            <ul class="list-unstyled ps-0">
+                <li class="mb-1">
+                    <a href="#" class="sidebar-link rounded border-0 collapsed" role="button"
+                        @click="store.expandIfCollapsed" data-bs-toggle="collapse" data-bs-target="#settings-collapse"
+                        aria-expanded="false">
+                        <i class="bi bi-bounding-box"></i>
+                        <span class="menu-text">Manage Resources</span>
+                        <i class="bi bi-chevron-down collapse-icon menu-text"></i>
+                    </a>
+                    <div class="collapse submenu" id="settings-collapse" style="">
+                        <ul class="list-unstyled fw-normal pb-1 small">
+                            <li>
+                                <router-link to="/document-types" class="sidebar-link">
+                                    <i class="bi bi-file-earmark-diff-fill"></i>
+                                    <span class="menu-text">Document Types</span>
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link to="/order-types" class="sidebar-link">
+                                    <i class="bi bi-receipt"></i>
+                                    <span class="menu-text">Order Types</span>
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+            
         </nav>
     </div>
 </template>
@@ -171,7 +204,7 @@ const store = useSidebarStore();
 }
 
 .sidebar.expanded {
-    width: 250px;
+    width: 280px;
 }
 
 .sidebar.collapsed .menu-text,
@@ -186,7 +219,7 @@ const store = useSidebarStore();
 .sidebar-link {
     color: rgba(255, 255, 255, 0.75);
     text-decoration: none;
-    padding: 0.25rem 1rem;
+    padding: 0.25rem 0.25rem;
     display: flex;
     align-items: center;
     transition: all 0.2s;
@@ -200,7 +233,7 @@ const store = useSidebarStore();
 
 .sidebar-link i {
     width: 24px;
-    margin-right: 0.75rem;
+    margin-right: 0.5rem;
     font-size: 1.2rem;
 }
 
@@ -213,7 +246,7 @@ const store = useSidebarStore();
 }
 
 .submenu a{
-    padding: 0.75rem 3rem !important;
+    padding: 0.75rem 2rem !important;
     font-size: 13px !important;
     font-weight: 500;
     background-color: rgba(0, 0, 0, 0.2);
@@ -225,10 +258,11 @@ const store = useSidebarStore();
 }
 
 
-.submenu .sidebar-link {
+/* .submenu .sidebar-link {
     padding-left: 3rem;
     font-size: 0.9rem;
-}
+} */
+
 
 .toggle-sidebar {
     background-color: #212529;

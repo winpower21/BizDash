@@ -12,6 +12,9 @@ export const useAlertStore = defineStore('alert', {
         show(message, type = 'success', duration = 3000) {
             this.message = message
             this.type = type
+            const audio = new Audio('/notification.mp3')
+            audio.play().catch(e => console.error("Error playing sound: ", e));
+
             this.visible = true
 
             if (this.timeoutId) {
