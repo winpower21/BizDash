@@ -6,6 +6,45 @@ from .models import *
 api = Api(prefix='/api')
 
 
+document_type_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'description': fields.String,
+}
+
+
+order_document_fields = {
+    'id': fields.Integer,
+    'order_id': fields.Integer,
+    'current_status_id': fields.Integer,
+    'file_path': fields.String,
+    'uploaded_at': fields.DateTime,
+    'submitted_at': fields.DateTime,
+    'document_type': fields.List(fields.Nested(document_type_fields))
+}
+
+
+order_status_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'description': fields.String,
+}
+
+
+order_type_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'description': fields.String,
+    'required_documents': fields.List(fields.Nested(document_type_fields))
+}
+
+
+registrar_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+}
+
+
 order_fields = {
     'id': fields.Integer,
     'client_id': fields.Integer,
@@ -20,6 +59,15 @@ order_fields = {
     'settlement_status': fields.Boolean,
 }
 
+
+company_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'registrar': fields.List(fields.Nested(registrar_fields)),
+    'orders': fields.List(fields.Nested(order_fields))
+}
+
+
 partners_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -29,6 +77,18 @@ partners_fields = {
     'orders': fields.List(fields.Nested(order_fields))
 }
 
+
+clients_fields = {
+    'id': fields.Integer,
+    'name': fields.String,
+    'email': fields.String,
+    'phone': fields.String,
+    'address': fields.String,
+    'orders': fields.List(fields.Nested(order_fields))
+}
+
+
+# ===================================== Partners Resource ===================================== #
 
 class PartnerResource(Resource):
     @marshal_with(partners_fields)
@@ -123,5 +183,305 @@ class PartnerIdResouce(Resource):
             db.session.rollback()
             abort(500, message=f"An error occurred while deleting the partner.{e}")
     
+# ===================================== Clients Resource ===================================== #
+
+class ClientResource(Resource):
+    @marshal_with(clients_fields)
+    def get(self):
+        clients = db.session.query(Client).all()
+        if not clients:
+            abort(404, message="There are no clients. Create one first.")
+        return clients
+    
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        email = data.get('email')
+        phone = data.get('phone')
+        address = data.get('address')
+        
+        if not name or not email or not phone or not address:
+            abort(400, message="Name, Email, Phone, and Address are required fields.")
+        
+        try:
+            new_client = Client(
+                name=name,
+                email=email,
+                phone=phone,
+                address=address
+            )
+            db.session.add(new_client)
+            db.session.commit()
+            return {'message': 'Client created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the client.{e}")
+
+
+class ClientIdResource(Resource):
+    @marshal_with(clients_fields)
+    def get(self, client_id):
+        client = db.session.query(Client).filter(Client.id == client_id).first()
+        if not client:
+            abort(404, message="Client with given ID doesn't exist.")
+        return client
+    
+    def put(self, client_id):
+        data = request.get_json()
+        client = db.session.query(Client).filter(Client.id == client_id).first()
+        if not client:
+            abort(404, message="Client with given ID doesn't exist.")
+        
+        name = data.get('name')
+        email = data.get('email')
+        phone = data.get('phone')
+        address = data.get('address')
+
+        if not name or not email or not phone or not address:
+            abort(400, message="Name, Email, Phone, and Address are required fields.")
+        
+        try:
+            if name and client.name != name:
+                client.name = name
+            if email and client.email != email:
+                client.email = email
+            if phone and client.phone != phone:
+                client.phone = phone
+            if address and client.address != address:
+                client.address = address
+            
+            db.session.commit()
+            return {'message': 'Client updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while updating the client.{e}")
+            
+    def delete(self, client_id):
+        client = db.session.query(Client).filter(Client.id == client_id).first()
+        if not client:
+            abort(404, message="Client with given ID doesn't exist.")
+        
+        try:
+            db.session.delete(client)
+            db.session.commit()
+            return {'message': 'Client deleted successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while deleting the client.{e}")
+            
+            
+# ===================================== Order Routes ===================================== #
+
+class OrderResource(Resource):
+    @marshal_with(order_fields)
+    def get(self):
+        orders = db.session.query(Order).all()
+        if not orders:
+            abort(404, message="There are no orders. Create one first.")
+        return orders
+
+
+# ===================================== Other Routes ===================================== #
+
+class DocumentTypeResource(Resource):
+    @marshal_with(document_type_fields)
+    def get(self):
+        document_types = db.session.query(DocumentType).all()
+        # if not document_types:
+        #     abort(404, message="There are no document types. Create one first.")
+        return document_types
+    
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description')
+        
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            new_document_type = DocumentType(
+                name=name,
+                description=description
+            )
+            db.session.add(new_document_type)
+            db.session.commit()
+            return {'message': 'Document type created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the document type.{e}")
+
+
+class DocumentTypeIdResource(Resource):
+    @marshal_with(document_type_fields)
+    def get(self, document_type_id):
+        document_type = db.session.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+        if not document_type:
+            abort(404, message="Document type with given ID doesn't exist.")
+        return document_type
+    
+    def put(self, document_type_id):
+        data = request.get_json()
+        document_type = db.session.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+        if not document_type:
+            abort(404, message="Document type with given ID doesn't exist.")
+        
+        name = data.get('name')
+        description = data.get('description')
+
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            if name and document_type.name != name:
+                document_type.name = name
+            if description and document_type.description != description:
+                document_type.description = description
+            
+            db.session.commit()
+            return {'message': 'Document type updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while updating the document type.{e}")
+            
+            
+    def delete(self, document_type_id):
+        document_type = db.session.query(DocumentType).filter(DocumentType.id == document_type_id).first()
+        if not document_type:
+            abort(404, message="Document type with given ID doesn't exist.")
+        
+        try:
+            db.session.delete(document_type)
+            db.session.commit()
+            return {'message': 'Document type deleted successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while deleting the document type.{e}")
+
+
+
+class OrderStatusResource(Resource):
+    @marshal_with(order_status_fields)
+    def get(self):
+        order_statuses = db.session.query(OrderStatus).all()
+        if not order_statuses:
+            abort(404, message="There are no order statuses. Create one first.")
+        return order_statuses
+    
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description')
+        
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            new_order_status = OrderStatus(
+                name=name,
+                description=description
+            )
+            db.session.add(new_order_status)
+            db.session.commit()
+            return {'message': 'Order status created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the order status.{e}")
+
+
+
+class OrderTypesResource(Resource):
+    @marshal_with(order_type_fields)
+    def get(self):
+        order_types = db.session.query(OrderType).all()
+        return order_types
+    
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        description = data.get('description')
+        required_documents_ids = data.get('required_documents_ids', [])
+        
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            new_order_type = OrderType(
+                name=name,
+                description=description
+            )
+            if required_documents_ids:
+                document_types = db.session.query(DocumentType).filter(DocumentType.id.in_(required_documents_ids)).all()
+                new_order_type.required_documents = document_types
+            
+            db.session.add(new_order_type)
+            db.session.commit()
+            return {'message': 'Order type created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the order type.{e}")
+            
+class OrderTypeIdResource(Resource):
+    @marshal_with(order_type_fields)
+    def get(self, order_type_id):
+        order_type = db.session.query(OrderType).filter(OrderType.id == order_type_id).first()
+        if not order_type:
+            abort(404, message="Order type with given ID doesn't exist.")
+        return order_type
+    
+    def put(self, order_type_id):
+        data = request.get_json()
+        order_type = db.session.query(OrderType).filter(OrderType.id == order_type_id).first()
+        if not order_type:
+            abort(404, message="Order type with given ID doesn't exist.")
+        
+        name = data.get('name')
+        description = data.get('description')
+        required_documents_ids = data.get('required_documents_ids', [])
+
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            if name and order_type.name != name:
+                order_type.name = name
+            if description and order_type.description != description:
+                order_type.description = description
+            if required_documents_ids:
+                document_types = db.session.query(DocumentType).filter(DocumentType.id.in_(required_documents_ids)).all()
+                order_type.required_documents = document_types
+            
+            db.session.commit()
+            return {'message': 'Order type updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while updating the order type.{e}")
+    
+    def delete(self, order_type_id):
+        order_type = db.session.query(OrderType).filter(OrderType.id == order_type_id).first()
+        if not order_type:
+            abort(404, message="Order type with given ID doesn't exist.")
+        
+        try:
+            db.session.delete(order_type)
+            db.session.commit()
+            return {'message': 'Order type deleted successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while deleting the order type.{e}")
+
+
+# ===================================== Register Resources ===================================== #
 api.add_resource(PartnerResource, '/partners')
 api.add_resource(PartnerIdResouce, '/partners/<int:partner_id>')
+
+api.add_resource(ClientResource, '/clients')
+api.add_resource(ClientIdResource, '/clients/<int:client_id>')
+
+api.add_resource(DocumentTypeResource, '/document-types')
+api.add_resource(DocumentTypeIdResource, '/document-types/<int:document_type_id>')
+
+api.add_resource(OrderStatusResource, '/order-status')
+
+api.add_resource(OrderTypesResource, '/order-types')
+api.add_resource(OrderTypeIdResource, '/order-types/<int:order_type_id>')

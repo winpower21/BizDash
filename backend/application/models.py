@@ -98,7 +98,7 @@ class DocumentType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False, unique=True)
     description = db.Column(db.String(200), nullable=True)
-    is_mandatory = db.Column(db.Boolean, default=True, nullable=False)  # Whether this document is mandatory
+    # is_mandatory = db.Column(db.Boolean, default=True, nullable=False)  # Whether this document is mandatory
     
     # Relationships
     order_types = db.relationship('OrderType', secondary=order_type_documents, back_populates='required_documents')
