@@ -1,11 +1,14 @@
 <template>
     <h1>Order Types</h1>
-    <table class="table table-striped-columns" v-if="orderTypes.length > 0">
+    <hr>
+    <div v-if="orderTypes.length > 0 & documentTypes.length > 0" class="container hero-content">
+    <table class="table table-striped-columns">
         <thead>
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
+                <th scope="col">Requried Docs</th>
                 <th scope="col">Action</th>
             </tr>
         </thead>
@@ -14,6 +17,7 @@
                 <th scope="row">{{ order.id }}</th>
                 <td>{{ order.name }}</td>
                 <td>{{ order.description }}</td>
+                <td>{{ order.required_documents.length }}</td>
                 <td>
                     <div>
                         <button class="btn btn-warning" @click="showEditOrderTypeModal(order)">Edit</button>
@@ -23,10 +27,21 @@
             </tr>
         </tbody>
     </table>
-    <div v-else>
-        There are no order types. Create a new one.
-    </div>
     <button class="btn btn-primary" @click="showNewOrderTypeModal">Create New</button>
+    </div>
+    <div v-else-if="orderTypes.length == 0 & documentTypes.length > 0" class="container text-center d-flex flex-column justify-content-center  align-items-center"
+        style="min-height: 80vh;">
+        There are no order types. Create a new one.
+        <button class="btn btn-primary" @click="showNewOrderTypeModal">Create New</button>
+    </div>
+    <div v-else-if="orderTypes.length == 0 & documentTypes.length == 0"
+        class="container text-center d-flex flex-column justify-content-center  align-items-center"
+        style="min-height: 80vh;">
+        There are no document types. Create them before creating order types.
+        <RouterLink class="btn btn-primary" to="/document-types">Create Document Types</RouterLink>
+        <!-- <button class="btn btn-primary" @click="showNewOrderTypeModal">Create New</button> -->
+    </div>
+    
 
     <div ref="deleteOrderTypeModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
@@ -66,9 +81,19 @@
                         <input type="text" v-model="editingOrderType.description" name="orderTypeDescription"
                             id="orderTypeDescription" class="form-control" placeholder="Order Type Description">
                     </div>
+                    <div class="mb-3">
+                        <label for="requiredDocuements" class="form-label">Required Documents</label>
+                        <div class="form-check" v-for="docType in documentTypes" :key="docType.id">
+                            <input class="form-check-input" type="checkbox" :value="docType.id"
+                                :id="`docType-${docType.id}`" v-model="editingOrderType.required_documents_ids">
+                            <label class="form-check-label" :for="`docType-${docType.id}`">
+                                {{ docType.name }}
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button @click="editOrderType(editingOrderType)" class="btn btn-danger">Submit</button>
+                    <button @click="editOrderType(editingOrderType)" class="btn btn-success">Submit</button>
                 </div>
             </div>
         </div>
@@ -92,9 +117,19 @@
                         <input type="text" v-model="newOrderTypeDescription" name="orderTypeDescription" id="orderTypeDescription"
                             class="form-control" placeholder="Order Type Description">
                     </div>
+                    <div class="mb-3">
+                        <label for="requiredDocuements" class="form-label">Required Documents</label>
+                        <div class="form-check" v-for="docType in documentTypes" :key="docType.id">
+                            <input class="form-check-input" type="checkbox" :value="docType.id" :id="`docType-${docType.id}`" v-model="newOrderTypeReqDocs">
+                            <label class="form-check-label" :for="`docType-${docType.id}`">
+                                {{ docType.name }}
+                            </label>
+                        </div>
+                    </div>
+                    <RouterLink class="btn btn-primary" to="/document-types">Add More Doc Types</RouterLink>
                 </div>
                 <div class="modal-footer">
-                    <button @click="createOrderType" class="btn btn-danger">Submit</button>
+                    <button @click="createOrderType" class="btn btn-success">Submit</button>
                 </div>
             </div>
         </div>
@@ -115,6 +150,7 @@ const alert = useAlertStore();
 
 const newOrderTypeName = ref("");
 const newOrderTypeDescription = ref("");
+const newOrderTypeReqDocs = ref([]);
 const newOrderTypeModal = ref(null);
 const newOrderType = ref(null);
 
@@ -128,6 +164,25 @@ const editOrderTypeId = ref('');
 const deleteOrderT = ref(null);
 
 const orderTypes = ref([]);
+const documentTypes = ref([])
+
+
+const getDocumentTypes = async() => {
+    try{
+        const response = await fetchApi('/api/document-types', {
+            method: 'GET'
+        });
+        if (response.ok) {
+            const data = await response.json();
+            documentTypes.value = data;
+        } else {
+            const data = await response.json();
+            console.warn(data)
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
 
 
 //  Fetch docuement types
@@ -138,6 +193,7 @@ const getOrderTypes = async() => {
         })
         if (response.ok){
             const data = await response.json()
+            console.log(data);
             orderTypes.value = data
         }
     } catch (e) {
@@ -170,7 +226,8 @@ const createOrderType = async() => {
             method: "POST",
             body: JSON.stringify({
                 "name": newOrderTypeName.value,
-                "description": newOrderTypeDescription.value
+                "description": newOrderTypeDescription.value,
+                "required_documents_ids": newOrderTypeReqDocs.value
             })
         })
         if (response.ok) {
@@ -195,7 +252,8 @@ const editOrderType = async (order) => {
             method: "PUT",
             body: JSON.stringify({
                 "name": order.name,
-                "description": order.description
+                "description": order.description,
+                "required_documents_ids": order.required_documents_ids
             })
         })
         if (response.ok) {
@@ -231,7 +289,13 @@ const showNewOrderTypeModal = () => {
 };
 
 const showEditOrderTypeModal = (order) => {
-    editingOrderType.value = order
+    const orderCopy = JSON.parse(JSON.stringify(order))
+
+    // Create an array of IDs from an array of objects
+    orderCopy.required_documents_ids = orderCopy.required_documents.map(doc => doc.id)
+
+    editingOrderType.value = orderCopy
+
     if (!editOrderT.value && editOrderTypeModal.value) {
         editOrderT.value = new Modal(editOrderTypeModal.value);
     }
@@ -240,6 +304,7 @@ const showEditOrderTypeModal = (order) => {
 
 
 onMounted(async () => {
+    getOrderTypes();
     getDocumentTypes();
     await nextTick();
     if (deleteOrderTypeModal.value) {

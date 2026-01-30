@@ -47,7 +47,6 @@ const name = ref(null);
 const email = ref(null);
 const phone = ref('');
 const share = ref(0.5)
-const normalizedShare = Number(share.value.toFixed(2))
 
 const phoneError = computed(() => {
     if (phone.value.length === 0) return ''
@@ -61,14 +60,11 @@ const newPartner = async () => {
     try {
         const response = await fetchApi('/api/partners', {
             method: "POST",
-            // headers: {
-            //     'Content-Type': 'application/json',
-            // },
             body: JSON.stringify({
                 name: name.value,
                 email: email.value,
                 phone: phone.value,
-                revenue_share: normalizedShare
+                revenue_share: share.value
             })
         });
         if (response.ok) {
