@@ -402,8 +402,8 @@ class OrderTypesResource(Resource):
         description = data.get('description')
         required_documents_ids = data.get('required_documents_ids', [])
         
-        if not name:
-            abort(400, message="Name is a required field.")
+        if not name or not required_documents_ids:
+            abort(400, message="Name and Documents are required.")
         
         try:
             new_order_type = OrderType(
@@ -438,9 +438,9 @@ class OrderTypeIdResource(Resource):
         name = data.get('name')
         description = data.get('description')
         required_documents_ids = data.get('required_documents_ids', [])
-
-        if not name:
-            abort(400, message="Name is a required field.")
+        
+        if not name or not required_documents_ids:
+            abort(400, message="Name and Documents are required.")
         
         try:
             if name and order_type.name != name:
@@ -448,6 +448,7 @@ class OrderTypeIdResource(Resource):
             if description and order_type.description != description:
                 order_type.description = description
             if required_documents_ids:
+                print(required_documents_ids)
                 document_types = db.session.query(DocumentType).filter(DocumentType.id.in_(required_documents_ids)).all()
                 order_type.required_documents = document_types
             
