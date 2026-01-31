@@ -472,6 +472,120 @@ class OrderTypeIdResource(Resource):
             abort(500, message=f"An error occurred while deleting the order type.{e}")
 
 
+
+class CompanyResource(Resource):
+    @marshal_with(company_fields)
+    def get(self):
+        companies = db.session.query(Company).all()
+        if not companies:
+            abort(404, message="There are no companies. Create one first.")
+        return companies
+
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        registrar_id = data.get('registrar_id')
+        
+        if not name or not registrar_id:
+            abort(400, message="Name and Registrar ID are required fields.")
+        
+        try:
+            registrar = db.session.query(Registrar).filter(Registrar.id == registrar_id).first()
+            if not registrar:
+                abort(404, message="Registrar with given ID doesn't exist.")
+            
+            new_company = Company(
+                name=name,
+                registrar=registrar
+            )
+            db.session.add(new_company)
+            db.session.commit()
+            return {'message': 'Company created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the company.{e}")
+            
+            
+            
+class CompanyIdResource(Resource):
+    @marshal_with(company_fields)
+    def get(self, company_id):
+        company = db.session.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            abort(404, message="Company with given ID doesn't exist.")
+        return company
+    
+    def put(self, company_id):
+        data = request.get_json()
+        company = db.session.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            abort(404, message="Company with given ID doesn't exist.")
+        
+        name = data.get('name')
+        registrar_id = data.get('registrar_id')
+
+        if not name or not registrar_id:
+            abort(400, message="Name and Registrar ID are required fields.")
+        
+        try:
+            registrar = db.session.query(Registrar).filter(Registrar.id == registrar_id).first()
+            if not registrar:
+                abort(404, message="Registrar with given ID doesn't exist.")
+            
+            if name and company.name != name:
+                company.name = name
+            if registrar and company.registrar != registrar:
+                company.registrar = registrar
+            
+            db.session.commit()
+            return {'message': 'Company updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while updating the company.{e}")
+            
+    def delete(self, company_id):
+        company = db.session.query(Company).filter(Company.id == company_id).first()
+        if not company:
+            abort(404, message="Company with given ID doesn't exist.")
+        
+        try:
+            db.session.delete(company)
+            db.session.commit()
+            return {'message': 'Company deleted successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while deleting the company.{e}")
+
+
+
+class RegistrarResource(Resource):
+    @marshal_with(registrar_fields)
+    def get(self):
+        registrars = db.session.query(Registrar).all()
+        if not registrars:
+            abort(404, message="There are no registrars. Create one first.")
+        return registrars
+    
+    def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        
+        if not name:
+            abort(400, message="Name is a required field.")
+        
+        try:
+            new_registrar = Registrar(
+                name=name
+            )
+            db.session.add(new_registrar)
+            db.session.commit()
+            return {'message': 'Registrar created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            abort(500, message=f"An error occurred while creating the registrar.{e}")
+
+
+
 # ===================================== Register Resources ===================================== #
 api.add_resource(PartnerResource, '/partners')
 api.add_resource(PartnerIdResouce, '/partners/<int:partner_id>')
@@ -486,3 +600,8 @@ api.add_resource(OrderStatusResource, '/order-status')
 
 api.add_resource(OrderTypesResource, '/order-types')
 api.add_resource(OrderTypeIdResource, '/order-types/<int:order_type_id>')
+
+api.add_resource(CompanyResource, '/companies')
+api.add_resource(CompanyIdResource, '/companies/<int:company_id>')
+
+api.add_resource(RegistrarResource, '/registrars')
