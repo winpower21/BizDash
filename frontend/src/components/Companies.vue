@@ -1,7 +1,7 @@
 <template>
     <h1>Companies</h1>
     <hr>
-    <div class="container hero-content" v-if="companies.length > 0">
+    <div class="container hero-content" v-if="companies.length > 0 & registrars.length > 0">
         <table class="table table-striped-columns">
             <thead class="table-dark">
                 <tr>
@@ -27,13 +27,85 @@
         </table>
         <button class="btn btn-primary" @click="showNewCompanyModal">Create New</button>
     </div>
-    <div v-else class="container text-center d-flex flex-column justify-content-center  align-items-center"
+    <div v-else-if="registrars.length > 0 & companies.length == 0" class="container text-center d-flex flex-column justify-content-center  align-items-center"
         style="min-height: 80vh;">
         There are no companies. Create a new one.
         <button class="btn btn-primary" @click="showNewCompanyModal">Create New</button>
     </div>
+    <div v-else-if="registrars.length == 0"
+        class="container text-center d-flex flex-column justify-content-center  align-items-center"
+        style="min-height: 80vh;">
+        There are no registrars yet. Create a new one before adding companies.
+        <RouterLink class="btn btn-primary" to="/registrars">New Registrar</RouterLink>
+    </div>
     
-
+    
+    <!-- Create company -->
+    <div ref="newCompanyModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Company</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>New Company</h3>
+                    <div class="mb-3">
+                        <label for="companyName" class="form-label">Name</label>
+                        <input type="text" v-model="newCompanyName" name="companyName" id="companyName" class="form-control" placeholder="Company Name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registrar" class="form-label">Description</label>
+                        <input type="text" v-model="newCompanyRegistrar" name="registrar" id="registrar"
+                        class="form-control" placeholder="Registrar">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registrar" class="form-label">Registrar</label>
+                        <select class="form-select" aria-label="Registrar">
+                            <option selected>Select Registrar</option>
+                            <option v-for="registrar in registrars" :key="registrar.id" value="{{registrar.id}}">{{
+                                registrar.name }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @click="createCompany" class="btn btn-danger">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <!-- Edit company -->
+    <div ref="editCompanyModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Company</h5>   
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="companyName" class="form-label">Name</label>
+                        <input type="text" v-model="editingCompany.name" name="companyName" id="companyName"
+                        class="form-control" placeholder="Company Name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="registrar" class="form-label">Registrar</label>
+                        <select class="form-select" aria-label="Registrar">
+                            <option selected>Select Registrar</option>
+                            <option v-for="registrar in registrars" :key="registrar.id" value="{{registrar.id}}">{{ registrar.name }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @click="editComp(editingCompany)" class="btn btn-danger">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete company -->
     <div ref="deleteCompanyModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -53,59 +125,6 @@
         </div>
     </div>
 
-    <div ref="editDocumentModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Company</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="companyName" class="form-label">Name</label>
-                        <input type="text" v-model="editingCompany.name" name="companyName" id="companyName"
-                            class="form-control" placeholder="Company Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="registrar" class="form-label">Registrar</label>
-                        <select class="form-select" aria-label="Registrar">
-                            <option selected>Select Registrar</option>
-                            <option v-for="registrar in registrars" :key="registrar.id" value="{{registrar.id}}">{{ registrar.name }}</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="editDocumentType(editingCompany)" class="btn btn-danger">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div ref="newDocumentModal" class="modal fade" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create Document</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h3>New Document Type</h3>
-                    <div class="mb-3">
-                        <label for="companyName" class="form-label">Name</label>
-                        <input type="text" v-model="newDocumentName" name="companyName" id="companyName" class="form-control" placeholder="Document Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="registrar" class="form-label">Description</label>
-                        <input type="text" v-model="newDocumentDescription" name="registrar" id="registrar"
-                            class="form-control" placeholder="Registrar">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button @click="createDocumentType" class="btn btn-danger">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
 </template>
 
 <script setup>
@@ -120,49 +139,70 @@ const router = useRouter()
 const alert = useAlertStore();
 
 
-const newDocumentName = ref("");
-const newDocumentDescription = ref("");
-const newDocumentModal = ref(null);
-const newDocument = ref(null);
+const newCompanyName = ref("");
+const newCompanyRegistrar = ref("");
+const newCompanyModal = ref(null);
+const newCompany = ref(null);
 
-const editDocumentModal = ref(null);
-const editDocument = ref(null);
+const editCompanyModal = ref(null);
+const editCompany = ref(null);
 const editingCompany = ref({});
 
 const deleteCompanyModal = ref(null);
 const deleteCompanyName = ref('');
 const deleteCompanyId = ref('');
-const deleteDocument = ref(null);
+const delCompany = ref(null);
 
 const companies = ref([]);
+const registrars = ref([]);
 
 
-//  Fetch docuement types
-const getDocumentTypes = async() => {
-    try{
-        const response = await fetchApi('/api/document-types', {
+const getRegistrars = async() => {
+    try {
+        const response = await fetchApi('/api/registrars', {
             method: "GET"
         })
-        if (response.ok){
-            const data = await response.json()
-            companies.value = data
+        if (response.ok) {
+            const data = await response.json();
+            registrars.value = data;
+        }
+        else {
+            console.warn("Error")
         }
     } catch (e) {
-        console.error("Error fetching data: ", e)
+        console.log(e)
     }
 }
 
 
-//  Delete docuement types
-const deleteCompany = async(document_id) => {
+const getCompanies = async() => {
+    try {
+        const response = await fetchApi('/api/companies', {
+            method: "GET"
+        })
+        if (response.ok) {
+            const data = await response.json();
+            companies.value = data;
+        }
+        else {
+            console.warn("Error")
+        }
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+
+//  Delete company
+const deleteCompany = async(company_id) => {
     try{
-        const response = await fetchApi(`/api/document-types/${document_id}`, {
+        const response = await fetchApi(`/api/companies/${company_id}`, {
             method: "DELETE"
         });
         if (response.ok) {
-            deleteDocument.value.hide();
+            delCompany.value.hide();
             alert.show("Deleted Successfully", "success")
-            await getDocumentTypes()
+            await getCompanies()
         }
     } catch (e) {
         console.error(e)
@@ -170,24 +210,24 @@ const deleteCompany = async(document_id) => {
 }
 
 
-//  Create docuement types
-const createDocumentType = async() => {
+//  Create company
+const createCompany = async() => {
     try {
-        const response = await fetchApi('/api/document-types', {
+        const response = await fetchApi('/api/companies', {
             method: "POST",
             body: JSON.stringify({
-                "name": newDocumentName.value,
-                "description": newDocumentDescription.value
+                "name": newCompanyName.value,
+                "description": newCompanyRegistrar.value
             })
         })
         if (response.ok) {
-            newDocument.value.hide()
-            alert.show(`Document ${newDocumentName.value} created successfully`)
-            await getDocumentTypes()
+            newCompany.value.hide()
+            alert.show(`Company ${newCompanyName.value} created successfully`)
+            await getCompanies()
         } else {
-            newDocument.value.hide()
+            newCompany.value.hide()
             const data = await response.json();
-            alert.show(`Error creating ${newDocumentName.value}: ${data.message}`)
+            alert.show(`Error creating ${newCompanyName.value}: ${data.message}`)
             console.log(data.message)
         }
     } catch (e) {
@@ -195,68 +235,69 @@ const createDocumentType = async() => {
     }
 }
 
-//  Edit docuement types
-const editDocumentType = async (document) => {
+//  Edit company
+const editComp = async (company) => {
     try {
-        const response = await fetchApi(`/api/document-types/${document.id}`, {
+        const response = await fetchApi(`/api/companies/${company.id}`, {
             method: "PUT",
             body: JSON.stringify({
-                "name": document.name,
-                "description": document.description
+                "name": company.name,
+                "description": company.description
             })
         })
         if (response.ok) {
-            editDocument.value.hide()
-            alert.show(`Document ${document.name} edited successfully`)
-            await getDocumentTypes()
+            editCompany.value.hide()
+            alert.show(`Company ${company.name} edited successfully`)
+            await getCompanies()
         } else {
-            editDocument.value.hide()
+            editCompany.value.hide();
             const data = await response.json();
-            alert.show(`Error editing ${document.name}: ${data.message}`)
-            console.log(data.message)
+            alert.show(`Error editing ${company.name}: ${data.message}`)
+            console.log(data.message);
         }
     } catch (e) {
         console.error(e)
     }
 }
 
-const showDeleteCompanyModal = (document) => {
-    deleteCompanyName.value = document.name;
-    deleteCompanyId.value = document.id;
-    if (!deleteDocument.value && deleteCompanyModal.value) {
-        deleteDocument.value = new Modal(deleteCompanyModal.value);
+const showDeleteCompanyModal = (company) => {
+    deleteCompanyName.value = company.name;
+    deleteCompanyId.value = company.id;
+    if (!delCompany.value && deleteCompanyModal.value) {
+        delCompany.value = new Modal(deleteCompanyModal.value);
     }
-    deleteDocument.value?.show();
+    delCompany.value?.show();
 };
 
 
 const showNewCompanyModal = () => {
-    if (!newDocument.value && newDocumentModal.value) {
-        newDocument.value = new Modal(newDocumentModal.value);
+    if (!newCompany.value && newCompanyModal.value) {
+        newCompany.value = new Modal(newCompanyModal.value);
     }
-    newDocument.value?.show();
+    newCompany.value?.show();
 };
 
-const showEditCompanyModal = (document) => {
-    editingCompany.value = document
-    if (!editDocument.value && editDocumentModal.value) {
-        editDocument.value = new Modal(editDocumentModal.value);
+const showEditCompanyModal = (company) => {
+    editingCompany.value = company;
+    if (!editCompany.value && editCompanyModal.value) {
+        editCompany.value = new Modal(editCompanyModal.value);
     }
-    editDocument.value?.show();
+    editCompany.value?.show();
 };
 
 
 onMounted(async () => {
-    getDocumentTypes();
+    getCompanies();
+    getRegistrars();
     await nextTick();
     if (deleteCompanyModal.value) {
-        deleteDocument.value = new Modal(deleteCompanyModal.value)
+        delCompany.value = new Modal(deleteCompanyModal.value);
     }
-    if (newDocumentModal.value) {
-        newDocument.value = new Modal(newDocumentModal.value)
+    if (newCompanyModal.value) {
+        newCompany.value = new Modal(newCompanyModal.value);
     }
-    if (editDocumentModal.value) {
-        editDocument.value = new Modal(editDocumentModal.value)
+    if (editCompanyModal.value) {
+        editCompany.value = new Modal(editCompanyModal.value);
     }
 })
 
