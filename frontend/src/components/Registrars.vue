@@ -1,106 +1,94 @@
 <template>
-    <h1>Document Types</h1>
+    <h1>Registrar Types</h1>
     <hr>
-    <div class="container hero-content" v-if="documentTypes.length > 0">
+    <div class="container hero-content" v-if="registrars.length > 0">
         <table class="table table-striped-columns">
             <thead class="table-dark">
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Name</th>
-                    <th scope="col">Description</th>
                     <th scope="col">Action</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="document in documentTypes" :key="document.id">
-                    <th scope="row">{{ document.id }}</th>
-                    <td>{{ document.name }}</td>
-                    <td>{{ document.description }}</td>
+                <tr v-for="registrar in registrars" :key="registrar.id">
+                    <th scope="row">{{ registrar.id }}</th>
+                    <td>{{ registrar.name }}</td>
                     <td>
                         <div>
-                            <button class="btn btn-warning" @click="showEditDocumentModal(document)">Edit</button>
-                            <button class="btn btn-danger" @click="showDeleteDocumentModal(document)">Delete</button>
+                            <button class="btn btn-warning" @click="showeditRegModal(registrar)">Edit</button>
+                            <button class="btn btn-danger" @click="showDeleteRegistrarModal(registrar)">Delete</button>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <button class="btn btn-primary" @click="showNewDocumentModal">Create New</button>
+        <button class="btn btn-primary" @click="showNewRegistrarModal">Create New</button>
     </div>
     <div v-else class="container text-center d-flex flex-column justify-content-center  align-items-center"
         style="min-height: 80vh;">
-        There are no document types. Create a new one.
-        <button class="btn btn-primary" @click="showNewDocumentModal">Create New</button>
+        There are no registrar types. Create a new one.
+        <button class="btn btn-primary" @click="showNewRegistrarModal">Create New</button>
     </div>
     
 
-    <div ref="deleteDocumentModal" class="modal fade" tabindex="-1">
+    <div ref="deleteRegistrarModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Delete Document</h5>
+                    <h5 class="modal-title">Delete Registrar</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3 align-items-center">
-                        <h5>Delete document type: {{ deleteDocumentName }}</h5>
+                        <h5>Delete registrar type: {{ deleteRegistrarName }}</h5>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button @click="deleteDocumentType(deleteDocumentId)" class="btn btn-danger">Delete</button>
+                    <button @click="deleteRegistrar(deleteRegistrarId)" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div ref="editDocumentModal" class="modal fade" tabindex="-1">
+    <div ref="editRegModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Document</h5>
+                    <h5 class="modal-title">Edit Registrar</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <h3>Edit Document Type</h3>
+                    <h3>Edit Registrar Type</h3>
                     <div class="mb-3">
-                        <label for="documentName" class="form-label">Name</label>
-                        <input type="text" v-model="editingDocument.name" name="documentName" id="documentName"
-                            class="form-control" placeholder="Document Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="documentDescription" class="form-label">Description</label>
-                        <input type="text" v-model="editingDocument.description" name="documentDescription"
-                            id="documentDescription" class="form-control" placeholder="Document Description">
+                        <label for="registrarName" class="form-label">Name</label>
+                        <input type="text" v-model="editingRegistrar.name" name="registrarName" id="registrarName"
+                            class="form-control" placeholder="Registrar Name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button @click="editDocumentType(editingDocument)" class="btn btn-danger">Submit</button>
+                    <button @click="editRegistrar(editingRegistrar)" class="btn btn-danger">Submit</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div ref="newDocumentModal" class="modal fade" tabindex="-1">
+    <div ref="newRegistrarModal" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Create Document</h5>
+                    <h5 class="modal-title">Create Registrar</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <h3>New Document Type</h3>
+                    <h3>New Registrar Type</h3>
                     <div class="mb-3">
-                        <label for="documentName" class="form-label">Name</label>
-                        <input type="text" v-model="newDocumentName" name="documentName" id="documentName" class="form-control" placeholder="Document Name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="documentDescription" class="form-label">Description</label>
-                        <input type="text" v-model="newDocumentDescription" name="documentDescription" id="documentDescription"
-                            class="form-control" placeholder="Document Description">
+                        <label for="registrarName" class="form-label">Name</label>
+                        <input type="text" v-model="newRegistrarName" name="registrarName" id="registrarName" class="form-control" placeholder="Registrar Name">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button @click="createDocumentType" class="btn btn-danger">Submit</button>
+                    <button @click="createRegistrar" class="btn btn-danger">Submit</button>
                 </div>
             </div>
         </div>
@@ -119,32 +107,31 @@ const router = useRouter()
 const alert = useAlertStore();
 
 
-const newDocumentName = ref("");
-const newDocumentDescription = ref("");
-const newDocumentModal = ref(null);
-const newDocument = ref(null);
+const newRegistrarName = ref("");
+const newRegistrarModal = ref(null);
+const newRegistrar = ref(null);
 
-const editDocumentModal = ref(null);
-const editDocument = ref(null);
-const editingDocument = ref({});
+const editRegModal = ref(null);
+const editReg = ref(null);
+const editingRegistrar = ref({});
 
-const deleteDocumentModal = ref(null);
-const deleteDocumentName = ref('');
-const deleteDocumentId = ref('');
-const deleteDocument = ref(null);
+const deleteRegistrarModal = ref(null);
+const deleteRegistrarName = ref('');
+const deleteRegistrarId = ref('');
+const deleteReg = ref(null);
 
-const documentTypes = ref([]);
+const registrars = ref([]);
 
 
 //  Fetch docuement types
-const getDocumentTypes = async() => {
+const getRegistrars = async() => {
     try{
-        const response = await fetchApi('/api/document-types', {
+        const response = await fetchApi('/api/registrars', {
             method: "GET"
         })
         if (response.ok){
             const data = await response.json()
-            documentTypes.value = data
+            registrars.value = data
         }
     } catch (e) {
         console.error("Error fetching data: ", e)
@@ -153,15 +140,15 @@ const getDocumentTypes = async() => {
 
 
 //  Delete docuement types
-const deleteDocumentType = async(document_id) => {
+const deleteRegistrar = async(registrar_id) => {
     try{
-        const response = await fetchApi(`/api/document-types/${document_id}`, {
+        const response = await fetchApi(`/api/registrars/${registrar_id}`, {
             method: "DELETE"
         });
         if (response.ok) {
-            deleteDocument.value.hide();
+            deleteReg.value.hide();
             alert.show("Deleted Successfully", "success")
-            await getDocumentTypes()
+            await getRegistrars()
         }
     } catch (e) {
         console.error(e)
@@ -170,23 +157,22 @@ const deleteDocumentType = async(document_id) => {
 
 
 //  Create docuement types
-const createDocumentType = async() => {
+const createRegistrar = async() => {
     try {
-        const response = await fetchApi('/api/document-types', {
+        const response = await fetchApi('/api/registrars', {
             method: "POST",
             body: JSON.stringify({
-                "name": newDocumentName.value,
-                "description": newDocumentDescription.value
+                "name": newRegistrarName.value,
             })
         })
         if (response.ok) {
-            newDocument.value.hide()
-            alert.show(`Document ${newDocumentName.value} created successfully`)
-            await getDocumentTypes()
+            newRegistrar.value.hide()
+            alert.show(`Registrar ${newRegistrarName.value} created successfully`)
+            await getRegistrars()
         } else {
-            newDocument.value.hide()
+            newRegistrar.value.hide()
             const data = await response.json();
-            alert.show(`Error creating ${newDocumentName.value}: ${data.message}`)
+            alert.show(`Error creating ${newRegistrarName.value}: ${data.message}`)
             console.log(data.message)
         }
     } catch (e) {
@@ -195,23 +181,22 @@ const createDocumentType = async() => {
 }
 
 //  Edit docuement types
-const editDocumentType = async (document) => {
+const editRegistrar = async (registrar) => {
     try {
-        const response = await fetchApi(`/api/document-types/${document.id}`, {
+        const response = await fetchApi(`/api/registrars/${registrar.id}`, {
             method: "PUT",
             body: JSON.stringify({
-                "name": document.name,
-                "description": document.description
+                "name": registrar.name,
             })
         })
         if (response.ok) {
-            editDocument.value.hide()
-            alert.show(`Document ${document.name} edited successfully`)
-            await getDocumentTypes()
+            editReg.value.hide()
+            alert.show(`Registrar ${registrar.name} edited successfully`)
+            await getRegistrars()
         } else {
-            editDocument.value.hide()
+            editReg.value.hide()
             const data = await response.json();
-            alert.show(`Error editing ${document.name}: ${data.message}`)
+            alert.show(`Error editing ${registrar.name}: ${data.message}`)
             console.log(data.message)
         }
     } catch (e) {
@@ -219,43 +204,43 @@ const editDocumentType = async (document) => {
     }
 }
 
-const showDeleteDocumentModal = (document) => {
-    deleteDocumentName.value = document.name;
-    deleteDocumentId.value = document.id;
-    if (!deleteDocument.value && deleteDocumentModal.value) {
-        deleteDocument.value = new Modal(deleteDocumentModal.value);
+const showDeleteRegistrarModal = (registrar) => {
+    deleteRegistrarName.value = registrar.name;
+    deleteRegistrarId.value = registrar.id;
+    if (!deleteReg.value && deleteRegistrarModal.value) {
+        deleteReg.value = new Modal(deleteRegistrarModal.value);
     }
-    deleteDocument.value?.show();
+    deleteReg.value?.show();
 };
 
 
-const showNewDocumentModal = () => {
-    if (!newDocument.value && newDocumentModal.value) {
-        newDocument.value = new Modal(newDocumentModal.value);
+const showNewRegistrarModal = () => {
+    if (!newRegistrar.value && newRegistrarModal.value) {
+        newRegistrar.value = new Modal(newRegistrarModal.value);
     }
-    newDocument.value?.show();
+    newRegistrar.value?.show();
 };
 
-const showEditDocumentModal = (document) => {
-    editingDocument.value = document
-    if (!editDocument.value && editDocumentModal.value) {
-        editDocument.value = new Modal(editDocumentModal.value);
+const showeditRegModal = (registrar) => {
+    editingRegistrar.value = registrar
+    if (!editReg.value && editRegModal.value) {
+        editReg.value = new Modal(editRegModal.value);
     }
-    editDocument.value?.show();
+    editReg.value?.show();
 };
 
 
 onMounted(async () => {
-    getDocumentTypes();
+    getRegistrars();
     await nextTick();
-    if (deleteDocumentModal.value) {
-        deleteDocument.value = new Modal(deleteDocumentModal.value)
+    if (deleteRegistrarModal.value) {
+        deleteReg.value = new Modal(deleteRegistrarModal.value)
     }
-    if (newDocumentModal.value) {
-        newDocument.value = new Modal(newDocumentModal.value)
+    if (newRegistrarModal.value) {
+        newRegistrar.value = new Modal(newRegistrarModal.value)
     }
-    if (editDocumentModal.value) {
-        editDocument.value = new Modal(editDocumentModal.value)
+    if (editRegModal.value) {
+        editReg.value = new Modal(editRegModal.value)
     }
 })
 
