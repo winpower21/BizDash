@@ -13,9 +13,6 @@ jobs:
         platform: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.platform }}
-    permissions:
-      contents: write # To upload release assets
-      releases: write # To create/update the release itself
     steps:
       - uses: actions/checkout@v4
 
