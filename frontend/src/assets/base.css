@@ -1,0 +1,41 @@
+:root {
+  --accent: #607d8b; /* Blue Grey */
+  --text: #333333; /* Dark Gray */
+  --text-selected-dark: #212121;
+  --text-selected-light: #e0e0e0;
+  --background: #ffffff; /* White */
+  --hover-background: #f5f5f5; /* Light Gray */
+  --selected-background: #e0e0e0; /* Even Lighter Gray */
+  --border: #eeeeee; /* Very Light Gray */
+  --internal-border: #bdbdbd; /* Medium Light Gray */
+  --highlight: #bbdefb; /* Light Blue */
+  --head: #eceff1; /* Another Light Gray */
+  --selected: #e0f2f7; /* A subtle light blue for general selected items */
+  --color: #424242; /* Slightly Lighter Dark Gray */
+}
+
+/* 1. Define custom fade animations */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 2. Apply to the view transition pseudo-elements */
+::view-transition-old(root) {
+  animation: 0.4s ease-in-out fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.4s ease-in-out fade-in;
+}
+
+/* Optional: Ensure the background remains stable */
+::view-transition-group(root) {
+  animation-duration: 0.4s;
+}
