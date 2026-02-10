@@ -21,6 +21,6 @@ console.log(`Building backend for ${target}`);
 console.log(`Output: ${outName}`);
 
 execSync(
-    `pyinstaller app.py --onefile --name ${outName} --distpath "${tauriBinDir}"`,
+    `pyinstaller app.py --onefile --name bizdash-backend --distpath "${tauriBinDir}"`,
     { cwd: backendDir, stdio: 'inherit' }
 );
