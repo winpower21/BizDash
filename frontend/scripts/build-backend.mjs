@@ -1,30 +1,26 @@
 import { execSync } from 'child_process';
-import { existsSync, mkdirSync } from 'fs';
+import { mkdirSync } from 'fs';
 import { join } from 'path';
 
 const backendDir = join(process.cwd(), '../backend');
-const distDir = join(process.cwd(), '../dist-backend');
-const appName = 'app';
+const tauriBinDir = join(process.cwd(), 'src-tauri/binaries');
 
-if (!existsSync(distDir)) {
-  mkdirSync(distDir, { recursive: true });
-}
+mkdirSync(tauriBinDir, { recursive: true });
 
-console.log(`Building backend for target: generic 'app' name`);
-console.log(`Output name: ${appName}`);
-console.log(`Output path: ${distDir}`);
+const target =
+    process.env.TAURI_ENV_TARGET_TRIPLE ||
+    process.env.CARGO_BUILD_TARGET ||
+    process.env.RUST_TARGET ||
+    'x86_64-unknown-linux-gnu';
 
-try {
-  // Ensure we are in the backend directory for pyinstaller
-  execSync(
-    `pyinstaller app.py --onefile --name ${appName} --distpath "${distDir}"`,
-    {
-      cwd: backendDir,
-      stdio: 'inherit',
-    }
-  );
-  console.log('Backend build successful.');
-} catch (error) {
-  console.error('Failed to build backend:', error.message);
-  process.exit(1);
-}
+const isWindows = target.includes('windows');
+
+const outName = `bizdash-backend-${target}${isWindows ? '.exe' : ''}`;
+
+console.log(`Building backend for ${target}`);
+console.log(`Output: ${outName}`);
+
+execSync(
+    `pyinstaller app.py --onefile --name ${outName} --distpath "${tauriBinDir}"`,
+    { cwd: backendDir, stdio: 'inherit' }
+);
