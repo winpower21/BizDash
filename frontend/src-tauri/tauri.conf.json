@@ -32,7 +32,7 @@
             "icons/icon.ico"
         ],
         "externalBin": [
-            "binaries/app"
+            "binaries/bizdash-backend"
         ]
     },
     "plugins": {
@@ -43,8 +43,8 @@
                 {
                     "name": "run-backend",
                     "sidecar": true,
-                    "cmd": "app",
-                    "path": "app",
+                    "cmd": "bizdash-backend",
+                    "path": "bizdash-backend",
                     "args": []
                 }
             ]
@@ -52,5 +52,5 @@
     },
     "identifier": "com.bizdash.dev",
     "productName": "BizDash",
-    "version": "1.0.1"
+    "version": "1.0.2"
 }

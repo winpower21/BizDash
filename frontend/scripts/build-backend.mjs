@@ -15,7 +15,7 @@ const target =
 
 const isWindows = target.includes('windows');
 
-const outName = `app-${target}${isWindows ? '.exe' : ''}`;
+const outName = `bizdash-backend-${target}${isWindows ? '.exe' : ''}`;
 
 console.log(`Building backend for ${target}`);
 console.log(`Output: ${outName}`);
