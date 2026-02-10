@@ -54,9 +54,7 @@ jobs:
             libwebkit2gtk-4.1-dev \
             libappindicator3-dev \
             librsvg2-dev \
-            patchelf \
-            rpm \
-            rpmbuild
+            patchelf
 
       # 6. Install frontend dependencies
       - name: Install npm dependencies
@@ -78,7 +76,6 @@ jobs:
             frontend/src-tauri/target/release/bundle/**/*.exe 
             frontend/src-tauri/target/release/bundle/**/*.AppImage 
             frontend/src-tauri/target/release/bundle/**/*.deb 
-            frontend/src-tauri/target/release/bundle/**/*.rpm
 
   release:
     needs: build
