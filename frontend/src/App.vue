@@ -2,6 +2,13 @@
 import Sidebar from './components/Sidebar.vue';
 import { RouterView } from 'vue-router';
 import AlertMessage from './components/AlertMessage.vue';
+import { onMounted } from 'vue';
+import { Command } from '@tauri-apps/plugin-shell';
+
+onMounted(async () => {
+  const command = Command.sidecar('run-backend');
+  await command.spawn();
+});
 </script>
 
 <template>
