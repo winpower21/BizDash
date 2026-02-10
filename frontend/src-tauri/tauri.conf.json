@@ -1,8 +1,8 @@
 {
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
     "build": {
-        "beforeBuildCommand": "npm run build",
-        "beforeDevCommand": "npm run dev",
+        "beforeBuildCommand": "node scripts/build-backend.mjs && vite build",
+        "beforeDevCommand": "node scripts/build-backend.mjs && vite dev",
         "devUrl": "http://localhost:5173",
         "frontendDist": "../dist"
     },
@@ -32,7 +32,7 @@
             "icons/icon.ico"
         ],
         "externalBin": [
-            "../dist-backend/app"
+            "binaries/app"
         ]
     },
     "plugins": {
@@ -43,7 +43,8 @@
                 {
                     "name": "run-backend",
                     "sidecar": true,
-                    "cmd": "$RESOURCE/../dist-backend/app",
+                    "cmd": "app",
+                    "path": "app",
                     "args": []
                 }
             ]
