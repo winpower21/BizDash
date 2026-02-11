@@ -63,13 +63,11 @@ jobs:
 
             - name: Crete necessary directories in frontend
               shell: bash
-              working-directory: frontend
               run: |
                   mkdir -p frontend/src-tauri/binaries
             
             - name: Copy backend executible to frontend
               shell: bash
-              working-directory: frontend
               run: |
                   cp backend/dist/bizdash-backend.exe frontend/src-tauri/binaries/bizdash-backend-${{env.TARGET}}.exe
                   ls -la frontend/src-tauri/binaries
