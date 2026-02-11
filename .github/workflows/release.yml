@@ -19,11 +19,22 @@ jobs:
               with:
                   python-version: "3.12.3"
 
+            
+                  - name: Setup Rust toolchain
+              uses: dtolnay/rust-toolchain@stable
+
+            
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 25.5
+
             - name: Install backend dependencies
               working-directory: backend
               run: |
                   pip install -r requirements.txt
                   pip install pyinstaller
+
 
             - name: Build Vue frontend
               working-directory: frontend
@@ -35,32 +46,40 @@ jobs:
               run: |
                   xcopy frontend\dist backend\frontend_dist /E /I /Y
 
-            - name: Setup Rust toolchain
-              uses: dtolnay/rust-toolchain@stable
+
 
             - name: Get host tuple
-              run: echo "TARGET=$(rustc --print host-tuple)" >> $GITHUB_ENV
+              shell: bash
+              run: |
+                echo "TARGET=$(rustc --print host-tuple)"
+                echo "TARGET=$(rustc --print host-tuple)" >> $GITHUB_ENV
+
 
             - name: Build Flask exe
               working-directory: backend
               run: |
                   pyinstaller app.spec
 
-            - name: Setup Node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 25.5
+
+            - name: Crete necessary directories in frontend
+              shell: bash
+              working-directory: frontend
+              run: |
+                  mkdir -p frontend/src-tauri/binaries
+            
+            - name: Copy backend executible to frontend
+              shell: bash
+              working-directory: frontend
+              run: |
+                  cp backend/dist/bizdash-backend.exe frontend/src-tauri/binaries/bizdash-backend-${{env.TARGET}}.exe
+                  ls -la frontend/src-tauri/binaries
+
 
             - name: Install tauri deps
               working-directory: frontend
               run: |
                   npm install
 
-            - name: Copy backend exe to tauri
-              shell: cmd
-              run: |
-                  mkdir frontend\src-tauri\binaries
-                  copy backend\dist\bizdash-backend.exe frontend\src-tauri\binaries\bizdash-backend-${{env.TARGET}}.exe
 
             - name: Build Windows installer
               working-directory: frontend
