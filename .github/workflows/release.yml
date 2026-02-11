@@ -44,7 +44,7 @@ jobs:
             - name: Build Flask exe
               working-directory: backend
               run: |
-                  pyinstaller app.spec --onefile --name bizdash-backend-${{ env.TARGET }}
+                  pyinstaller app.spec
 
             - name: Setup Node
               uses: actions/setup-node@v6
@@ -60,7 +60,7 @@ jobs:
               shell: cmd
               run: |
                   mkdir frontend\src-tauri\binaries
-                  copy backend\dist\bizdash-backend-${{env.TARGET}}.exe frontend\src-tauri\binaries\bizdash-backend-${{env.TARGET}}.exe
+                  copy backend\dist\bizdash-backend.exe frontend\src-tauri\binaries\bizdash-backend-${{env.TARGET}}.exe
 
             - name: Build Windows installer
               working-directory: frontend
