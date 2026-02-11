@@ -31,7 +31,7 @@ fn start_backend(app: AppHandle) {
     tauri::async_runtime::spawn(async move {
         let state = app.state::<BackendState>();
 
-        let (rx, child) = app
+        let (_rx, child) = app
             .shell()
             .sidecar("bizdash-backend")
             .expect("sidecar not found")
