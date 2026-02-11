@@ -15,6 +15,7 @@ COMMENTS_FOLDER = os.path.join(UPLOAD_FOLDER, "comments")
 DB_PATH = os.path.join(APP_FOLDER, "bizdash.sqlite3")
 create_folder(UPLOAD_FOLDER)
 create_folder(COMMENTS_FOLDER)
+LOG_FILE = os.path.join(APP_FOLDER, "backend.log")
 
 
 class Config():

@@ -10,6 +10,7 @@ export default defineConfig({
         vue(),
         vueDevTools(),
     ],
+    clearScreen: false,
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -27,6 +28,10 @@ export default defineConfig({
                     })
                 }
             }
-        }
+        },
+        watch: {
+            // 3. tell Vite to ignore watching `src-tauri`
+            ignored: ["**/src-tauri/**"],
+        },
     }
 })

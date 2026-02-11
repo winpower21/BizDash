@@ -1,101 +1,152 @@
-name: Tauri Build & Release
+# @format
+
+name: Build Desktop Installers
 
 on:
-  push:
-    tags:
-      - "v*"
+    push:
+        tags:
+            - "v*"
 
 jobs:
+    build-windows:
+        runs-on: windows-latest
 
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-          - os: ubuntu-22.04
-            target: x86_64-unknown-linux-gnu
+        steps:
+            - uses: actions/checkout@v6
 
-    runs-on: ${{ matrix.os }}
+            - name: Setup Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.12.3"
 
-    steps:
-      # 1. Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+            - name: Install backend dependencies
+              working-directory: backend
+              run: |
+                  pip install -r requirements.txt
+                  pip install pyinstaller
 
-      # 2. Setup Node (Vite + Tauri CLI)
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+            - name: Build Vue frontend
+              working-directory: frontend
+              run: |
+                  npm install
+                  npm run build
 
-      # 3. Setup Rust (required by Tauri)
-      - name: Setup Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
+            - name: Copy Vue build to Flask
+              run: |
+                  xcopy frontend\dist backend\frontend_dist /E /I /Y
 
-      # 4. Setup Python (required for PyInstaller backend)
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+            - name: Setup Rust toolchain
+              uses: dtolnay/rust-toolchain@stable
 
-      - name: Install PyInstaller
-        run: pip install pyinstaller
+            - name: Get host tuple
+              run: echo "TARGET=$(rustc --print host-tuple)" >> $GITHUB_ENV
 
-      # 5. Linux system libraries required by Tauri bundler
-      - name: Install Linux dependencies
-        if: matrix.os == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            rpm \
-            rpmbuild
+            - name: Build Flask exe
+              working-directory: backend
+              run: |
+                  pyinstaller app.spec --onefile --name bizdash-backend-${{ env.TARGET }}
 
-      # 6. Install frontend dependencies
-      - name: Install npm dependencies
-        working-directory: frontend
-        run: npm ci
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 25.5
 
-      # 7. Build Tauri app (this runs build-backend.mjs automatically)
-      - name: Build Tauri application
-        working-directory: frontend
-        run: npx tauri build
+            - name: Install tauri deps
+              working-directory: frontend
+              run: |
+                  npm install
 
-      # 8. Upload installers as artifacts (NOT to release yet)
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: tauri-build-${{ matrix.os }}
-          path: | 
-            frontend/src-tauri/target/release/bundle/**/*.msi 
-            frontend/src-tauri/target/release/bundle/**/*.exe 
-            frontend/src-tauri/target/release/bundle/**/*.AppImage 
-            frontend/src-tauri/target/release/bundle/**/*.deb 
-            frontend/src-tauri/target/release/bundle/**/*.rpm
+            - name: Copy backend exe to tauri
+              shell: cmd
+              run: |
+                  mkdir frontend\src-tauri\binaries
+                  copy backend\dist\bizdash-backend-${{env.TARGET}}.exe frontend\src-tauri\binaries\bizdash-backend-${{env.TARGET}}.exe
 
-  release:
-    needs: build
-    runs-on: ubuntu-22.04
+            - name: Build Windows installer
+              working-directory: frontend
+              run: npx tauri build
+              env:
+                  GH_TOKEN: ""
 
-    steps:
-      - name: Download all build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: windows-installer
+                  path: frontend\src-tauri\target\release\bundle\**\*.exe
 
-      # Upload installers to the GitHub Release
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          generate_release_notes: true
-          files: artifacts/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    build-linux:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Setup Python
+              uses: actions/setup-python@v6
+              with:
+                  python-version: "3.12"
+
+            - name: Install backend deps
+              working-directory: backend
+              run: |
+                  pip install -r requirements.txt
+                  pip install pyinstaller
+
+            # 5. Linux system libraries required by Tauri bundler
+            - name: Install Linux dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                    libwebkit2gtk-4.1-dev \
+                    libappindicator3-dev \
+                    librsvg2-dev \
+                    patchelf
+
+            - name: Build Vue frontend
+              working-directory: frontend
+              run: |
+                  npm install
+                  npm run build
+
+            - name: Copy Vue build to Flask
+              run: |
+                  cp -r frontend/dist backend/frontend_dist
+
+            - name: Setup Rust toolchain
+              uses: dtolnay/rust-toolchain@stable
+
+            - name: Get host tuple
+              run: echo "TARGET=$(rustc --print host-tuple)" >> $GITHUB_ENV
+
+            - name: Build Flask Binary
+              working-directory: backend
+              run: |
+                  pyinstaller app.spec
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 25.5
+
+            - name: Install tauri deps
+              working-directory: frontend
+              run: |
+                  npm install
+
+            - name: Copy backend binary to tauri
+              run: |
+                  cp -r backend/dist/bizdash-backend frontend/src-tauri/binaries/bizdash-backend-${{env.TARGET}}
+
+            - name: Build Linux installer
+              working-directory: frontend
+              run: npx tauri build
+              env:
+                  GH_TOKEN: ""
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: linux-installer
+                  path: |
+                      frontend/src-tauri/target/release/bundle/**/*.deb
+                      frontend/src-tauri/target/release/bundle/**/*.AppImage
+                      frontend/src-tauri/target/release/bundle/**/*.rpm

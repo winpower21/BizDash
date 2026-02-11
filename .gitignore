@@ -53,3 +53,6 @@ UPLOADS
 dist
 build
 whooshee
+test_builds
+bizdash-backend-x86_64-unknown-linux-gnu
+backend/frontend_dist/*

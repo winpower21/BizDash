@@ -49,5 +49,29 @@ async function fetchBatchData(urls) {
     return data
 }
 
+async function waitForBackend(timeout = 30000) { // 30 seconds timeout
+    const startTime = Date.now();
+    const API_BASE_URL = 'http://localhost:8080' // Change this to your backend URL
 
-export { fetchApi, fetchBatchData }
+    return new Promise((resolve, reject) => {
+        const interval = setInterval(async () => {
+            if (Date.now() - startTime > timeout) {
+                clearInterval(interval);
+                reject(new Error("Backend did not start in time."));
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            } catch (error) {
+                // Backend not ready yet
+            }
+        }, 500); // Check every 500ms
+    });
+}
+
+
+export { fetchApi, fetchBatchData, waitForBackend }

@@ -2,49 +2,42 @@
 import Sidebar from './components/Sidebar.vue';
 import { RouterView } from 'vue-router';
 import AlertMessage from './components/AlertMessage.vue';
-import { onMounted } from 'vue';
-import { Command } from '@tauri-apps/plugin-shell';
-
-onMounted(async () => {
-  const command = Command.sidecar('run-backend');
-  await command.spawn();
-});
 </script>
 
 <template>
-	<div class="wrapper">
-		<div class="sb">
-			<Sidebar />
-		</div>
-		<div class="content">
+    <div class="wrapper">
+        <div class="sb">
+            <Sidebar />
+        </div>
+        <div class="content">
             <AlertMessage />
-			<RouterView />
-		</div>
-	</div>
+            <RouterView />
+        </div>
+    </div>
 </template>
 
 
 <style scoped>
 .wrapper {
-	display: flex;
-	width: 100vw;
-	height: 100vh;
-	overflow-x: hidden;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    overflow-x: hidden;
 }
 
 
 .sb {
-	position: sticky;
-	top: 0;
-	align-self: flex-start;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
 }
 
 .content {
-	flex: 1;
-	padding: 20px;
-	gap: 5px;
-	overflow-y: auto;
-	transition: all 0.3s ease;
-	min-width: 0;
+    flex: 1;
+    padding: 20px;
+    gap: 5px;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    min-width: 0;
 }
 </style>

@@ -1,10 +1,8 @@
 from waitress import serve
 from flask import Flask, send_from_directory
-from application.config import Config, UPLOAD_FOLDER, COMMENTS_FOLDER
+from application.config import Config
 from application.database import db
-from application.functions import create_folder
 from flask_cors import CORS
-from flask_migrate import Migrate, upgrade
 from application.resources import api
 from application.create_data import (
     create_default_document_status,
@@ -16,8 +14,6 @@ import os
 import sys
 from pathlib import Path
 
-
-migrate = Migrate()
 
 # --------- IMPORTANT: path handling for PyInstaller ----------
 
@@ -40,7 +36,7 @@ def create_app():
     app.config.from_object(Config)
     CORS(app)
     db.init_app(app)
-    migrate.init_app(app, db)
+    # migrate.init_app(app, db)
     api.init_app(app)
     app.app_context().push()
     # ---------- Serve Vue ----------
@@ -51,6 +47,10 @@ def create_app():
         if path != "" and os.path.exists(os.path.join(VUE_DIST, path)):
             return send_from_directory(VUE_DIST, path)
         return send_from_directory(VUE_DIST, "index.html")
+
+    @app.route("/health")
+    def health():
+        return "OK"
     return app, db
 
 
@@ -58,28 +58,29 @@ app, db = create_app()
 
 
 with app.app_context():
-    inspector = inspect(db.engine)
-
-    if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
-        inspector = inspect(db.engine)
-
-        if not inspector.get_table_names():
-            print("First run detected — creating database")
-            db.create_all()
-            create_default_document_status()
-            create_order_statuses()
-        else:
-            print("Running migrations (if any)")
-            upgrade()
-
     db.create_all()
     create_default_document_status()
     create_order_statuses()
 
 
+import logging
+from application.config import LOG_FILE
+
+logging.basicConfig(
+    filename=LOG_FILE,
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+)
+
 if __name__ == "__main__":
     port = 8080
+    logging.info("Starting backend server")
     if getattr(sys, 'frozen', False):
-        serve(app, host='127.0.0.1', port=port)
+        try:
+            serve(app, host='127.0.0.1', port=port)
+            logging.info("Backend server started on 127.0.0.1:8080")
+        except Exception as e:
+            logging.error(f"Failed to start server: {e}")
+            raise e
     else:
         app.run(debug=True, port=port)

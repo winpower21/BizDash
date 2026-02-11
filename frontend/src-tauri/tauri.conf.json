@@ -1,8 +1,8 @@
 {
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
     "build": {
-        "beforeBuildCommand": "node scripts/build-backend.mjs && vite build",
-        "beforeDevCommand": "node scripts/build-backend.mjs && vite dev",
+        "beforeBuildCommand": "npm run build",
+        "beforeDevCommand": "npm run dev",
         "devUrl": "http://localhost:5173",
         "frontendDist": "../dist"
     },
@@ -37,17 +37,7 @@
     },
     "plugins": {
         "shell": {
-            "open": true,
-            "sidecar": true,
-            "scope": [
-                {
-                    "name": "run-backend",
-                    "sidecar": true,
-                    "cmd": "bizdash-backend",
-                    "path": "bizdash-backend",
-                    "args": []
-                }
-            ]
+            "open": true
         }
     },
     "identifier": "com.bizdash.dev",
