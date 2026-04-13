@@ -19,11 +19,9 @@ jobs:
               with:
                   python-version: "3.12.3"
 
-            
-                  - name: Setup Rust toolchain
+            - name: Setup Rust toolchain
               uses: dtolnay/rust-toolchain@stable
 
-            
             - name: Setup Node
               uses: actions/setup-node@v6
               with:
@@ -61,15 +59,14 @@ jobs:
                   pyinstaller app.spec
 
 
-            - name: Crete necessary directories in frontend
+            - name: Create necessary directories in frontend
               shell: bash
               working-directory: frontend
               run: |
-                  mkdir -p frontend/src-tauri/binaries
-            
-            - name: Copy backend executible to frontend
+                  mkdir -p src-tauri/binaries
+
+            - name: Copy backend executable to frontend
               shell: bash
-              working-directory: frontend
               run: |
                   cp backend/dist/bizdash-backend.exe frontend/src-tauri/binaries/bizdash-backend-${{env.TARGET}}.exe
                   ls -la frontend/src-tauri/binaries
@@ -103,6 +100,11 @@ jobs:
               uses: actions/setup-python@v6
               with:
                   python-version: "3.12"
+
+            - name: Setup Node
+              uses: actions/setup-node@v6
+              with:
+                  node-version: 25.5
 
             - name: Install backend deps
               working-directory: backend
@@ -140,11 +142,6 @@ jobs:
               working-directory: backend
               run: |
                   pyinstaller app.spec
-
-            - name: Setup Node
-              uses: actions/setup-node@v6
-              with:
-                  node-version: 25.5
 
             - name: Install tauri deps
               working-directory: frontend
