@@ -3,6 +3,21 @@ import router from '@/router/index.js'
 
 const API_BASE_URL = 'http://localhost:8080' // Change this to your backend URL
 
+async function fileUploadApi(endpoint, data) {
+    try {
+        let response = await fetch(`${API_BASE_URL}${endpoint}`, data)
+        if (response.status === 401) {
+            console.log('Unauthorized or expired token, redirecting to home.');
+            router.push({ name: 'Home' });
+        }
+        return response;
+    } catch (error) {
+        console.error('Error during upload:', error);
+        throw error; // Propagate error so the caller can handle it
+    }
+}
+
+
 async function fetchApi(endpoint, options = {}) {
 	try {
         
@@ -74,4 +89,4 @@ async function waitForBackend(timeout = 30000) { // 30 seconds timeout
 }
 
 
-export { fetchApi, fetchBatchData, waitForBackend }
+export { fetchApi, fetchBatchData, waitForBackend, fileUploadApi }

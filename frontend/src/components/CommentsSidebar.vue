@@ -130,7 +130,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useAlertStore } from '@/stores/alertMessageStore';
 import { Modal } from 'bootstrap';
-import {fetchApi} from '../../utils/api'; // Assuming @/utils/api exists from project structure
+import {fetchApi, fileUploadApi} from '../../utils/api'; // Assuming @/utils/api exists from project structure
 
 const props = defineProps({
     orderId: {
@@ -227,7 +227,7 @@ const confirmNewComment = async () => {
 
     try {
         // Use fetchApi for consistent error handling
-        const response = await fetch(`/api/orders/${props.orderId}/comments`, {
+        const response = await fileUploadApi(`/api/orders/${props.orderId}/comments`, {
             method: 'POST',
             body: formData,
             headers: {} 
@@ -270,7 +270,7 @@ const updateComment = async () => {
 
     try {
         // Use fetchApi for consistent error handling
-        const response = await fetch(`/api/orders/${props.orderId}/comments/${commentToEdit.value.id}`, {
+        const response = await fileUploadApi(`/api/orders/${props.orderId}/comments/${commentToEdit.value.id}`, {
             method: 'PUT',
             body: formData,
             headers: {} 

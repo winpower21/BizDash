@@ -282,6 +282,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add required document modal -->
         <div ref="addRequiredDocModalEl" class="modal fade" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -306,6 +308,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Document Upload Modal -->
         <div ref="uploadModalEl" class="modal fade" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -321,6 +325,7 @@
             </div>
         </div>
 
+        <!-- Delete document modal -->
         <div ref="deleteDocModalEl" class="modal fade" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -627,7 +632,7 @@ import { ref, onMounted, computed, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAlertStore } from '@/stores/alertMessageStore';
 import { Modal } from 'bootstrap';
-import { fetchApi, fetchBatchData } from '../../utils/api';
+import { fetchApi, fetchBatchData, fileUploadApi } from '../../utils/api';
 import TaskSidebar from '@/components/TaskSidebar.vue';
 import CommentsSidebar from '@/components/CommentsSidebar.vue';
 
@@ -984,7 +989,7 @@ const confirmUpload = async () => {
     formData.append('file', uploadedFile.value);
     formData.append('document_type_id', docToUpload.value.document_type.id);
     try {
-        const response = await fetch(`/api/orders/${orderId}/documents`, { method: 'POST', body: formData });
+        const response = await fileUploadApi(`/api/orders/${orderId}/documents`, { method: 'POST', body: formData });
         if (!response.ok) throw new Error((await response.json()).message);
         await fetchOrderDetails();
         modals.upload.hide();
