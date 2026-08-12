@@ -11,6 +11,7 @@ struct BackendState {
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_opener::init())
         .manage(BackendState {
             child: Mutex::new(None),
         })

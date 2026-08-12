@@ -635,6 +635,7 @@ import { Modal } from 'bootstrap';
 import { fetchApi, fetchBatchData, fileUploadApi } from '../../utils/api';
 import TaskSidebar from '@/components/TaskSidebar.vue';
 import CommentsSidebar from '@/components/CommentsSidebar.vue';
+import { openPath } from '@tauri-apps/plugin-opener'
 
 const route = useRoute();
 const alert = useAlertStore();
@@ -1212,28 +1213,10 @@ const showEditOrderModal = () => {
 
 const viewDocumentFile = async (filePath) => {
     try {
-        // Just fetch the head to check existence without downloading
-        const response = await fetchApi(`/api/uploads/${filePath}`, { method: 'HEAD' });
-        if (response.ok) {
-            window.open(getFileUrl(filePath), '_blank');
-        } else {
-            // The fetchApi utility already handles showing a generic error modal for !response.ok,
-            // but for a specific case like file not found, we can provide a more tailored message
-            // if the backend response includes one.
-            let errorMessage = 'File not found.';
-            try {
-                const errorData = await response.json();
-                errorMessage = errorData.message || errorMessage;
-            } catch (e) {
-                // If not JSON, use default
-            }
-            alert.show(errorMessage, 'error');
-        }
+        await openPath(filePath)
     } catch (error) {
-        // fetchApi already handles displaying network errors in the error modal.
-        // We can optionally add a specific alert here if needed, but it might duplicate.
-        // For now, let fetchApi manage the primary error display.
-        console.error("Error viewing document file:", error);
+        console.error("Error opening document:", error + "\n" + filePath)
+        alert.show("Could not open file", "error")
     }
 };
 

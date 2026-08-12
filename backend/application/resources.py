@@ -18,6 +18,15 @@ api = Api(prefix='/api')
 
 # ========================================= Marshal Fields ========================================= #
 
+class AbsoluteFilePath(fields.Raw):
+    """Resolves a relative path stored in the DB to an absolute path under UPLOAD_FOLDER."""
+    def format(self, value):
+        if not value:
+            return None
+        print(os.path.abspath(os.path.join(UPLOAD_FOLDER, value)))
+        return os.path.abspath(os.path.join(UPLOAD_FOLDER, value))
+
+
 document_type_fields = {
     'id': fields.Integer,
     'name': fields.String,
@@ -34,7 +43,7 @@ order_document_fields = {
     'id': fields.Integer,
     'order_id': fields.Integer,
     'current_status_rel': fields.Nested(document_status_fields),
-    'file_path': fields.String,
+    'file_path': AbsoluteFilePath,
     'uploaded_at': fields.DateTime,
     'submitted_at': fields.DateTime,
     'document_type': fields.Nested(document_type_fields)
@@ -45,7 +54,7 @@ order_comment_fields = {
     'order_id': fields.Integer,
     'comment_text': fields.String,
     'date_created': fields.DateTime,
-    'file_path': fields.String
+    'file_path': AbsoluteFilePath
 }
 
 order_status_fields = {

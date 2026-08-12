@@ -5,8 +5,7 @@ a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('frontend_dist', 'frontend_dist')
-            ],
+    datas=[],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -23,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='bizdash-backend',
+    name='app',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
